@@ -1,0 +1,1 @@
+Copy these to <game dir>/core/shaders/ (Steam version for example: steamapps/common/Amnesia The Dark Descent/core/shaders)
