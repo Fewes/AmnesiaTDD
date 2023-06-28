@@ -111,6 +111,7 @@ namespace hpl {
 			}
 
 			cParserVarContainer apVarContainer = it->second;
+
 			tWString sPath = pShader->GetFullPath();
 
 			if (sPath == _W(""))
@@ -275,6 +276,12 @@ namespace hpl {
 	void cGpuShaderManager::Destroy(iResourceBase* apResource)
 	{
 		apResource->DecUserCount();
+
+		iGpuShader* pShader = dynamic_cast<iGpuShader*>(apResource);
+		if (pShader)
+		{
+			m_mapAllShaders.erase(pShader);
+		}
 
 		if(apResource->HasUsers()==false){
 			RemoveResource(apResource);

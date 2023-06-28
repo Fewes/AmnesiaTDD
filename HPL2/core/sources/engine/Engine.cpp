@@ -774,9 +774,6 @@ namespace hpl {
 
 	void cEngine::ReloadShaders()
 	{
-		//mpResources->GetMaterialManager()->RecompileMaterials();
-		//mpScene->ReloadViewportPrograms();
-
 		mpResources->GetGpuShaderManager()->ReloadShaders();
 		mpResources->GetMaterialManager()->LinkMaterialPrograms();
 		mpScene->LinkViewportPrograms();

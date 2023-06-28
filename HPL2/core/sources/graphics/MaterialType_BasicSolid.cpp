@@ -585,8 +585,7 @@ namespace hpl {
 		if (aRenderMode == eMaterialRenderMode_Diffuse)
 		{
 			bool bRet = apProgram->SetMatrixf(kVar_a_mtxModel, apObject->GetWorldMatrix());
-			
-			if (bRet==false)Error("Could not set variable kVar_a_mtxModel\n");
+			//if (bRet==false)Error("Could not set variable kVar_a_mtxModel\n");
 		}
 
 		////////////////////////////
@@ -594,14 +593,14 @@ namespace hpl {
 		if(aRenderMode == eMaterialRenderMode_Z_Dissolve)
 		{
 			bool bRet = apProgram->SetFloat(kVar_afDissolveAmount, apObject->GetCoverageAmount());
-			if(bRet==false)Error("Could not set variable kVar_afDissolveAmount\n");
+			//if(bRet==false)Error("Could not set variable kVar_afDissolveAmount\n");
 		}
 		////////////////////////////
 		//Illumination
 		else if(aRenderMode == eMaterialRenderMode_Illumination)
 		{
 			bool bRet = apProgram->SetFloat(kVar_afColorMul, apObject->GetIlluminationAmount());
-			if (bRet == false)Error("Could not set variable kVar_afColorMul\n");
+			//if (bRet == false)Error("Could not set variable kVar_afColorMul\n");
 		}
 	}
 
