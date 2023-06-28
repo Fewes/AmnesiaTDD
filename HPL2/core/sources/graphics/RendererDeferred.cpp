@@ -76,7 +76,7 @@ namespace hpl {
 	float cRendererDeferred::mfSSAOScatterLengthMax = 0.13f;
 	float cRendererDeferred::mfSSAODepthDiffMul = 1.5f;
 	float cRendererDeferred::mfSSAOSkipEdgeLimit = 3.0f;
-	eDeferredSSAO cRendererDeferred::mSSAOType = eDeferredSSAO_OnColorBuffer;
+	eDeferredSSAO cRendererDeferred::mSSAOType = eDeferredSSAO_InBoxLight;
 	bool cRendererDeferred::mbEdgeSmoothLoaded = false;
 	
 	//debug
@@ -306,8 +306,8 @@ namespace hpl {
 		
 		////////////////////////////////////
 		//Create Accumulation texture
-		mpAccumBufferTexture = mpGraphics->CreateTexture("AccumBiffer",eTextureType_Rect,eTextureUsage_RenderTarget);
-		mpAccumBufferTexture->CreateFromRawData(cVector3l(mvScreenSize.x, mvScreenSize.y,0),ePixelFormat_RGBA, NULL);
+		mpAccumBufferTexture = mpGraphics->CreateTexture("AccumBuffer",eTextureType_Rect,eTextureUsage_RenderTarget);
+		mpAccumBufferTexture->CreateFromRawData(cVector3l(mvScreenSize.x, mvScreenSize.y,0), ePixelFormat_RGBA16, NULL);
 		mpAccumBufferTexture->SetWrapSTR(eTextureWrap_ClampToEdge);
 
 		////////////////////////////////////
@@ -615,7 +615,7 @@ namespace hpl {
 
 			// Textures
 			mpEdgeSmooth_LinearDepthTexture = CreateRenderTexture("EdgeSmoothLinearDepth", mvScreenSize,ePixelFormat_RGB16);
-			mpEdgeSmooth_TempAccum = mpGraphics->GetTempFrameBuffer(mvScreenSize,ePixelFormat_RGBA,0)->GetColorBuffer(0)->ToTexture();
+			mpEdgeSmooth_TempAccum = mpGraphics->GetTempFrameBuffer(mvScreenSize,ePixelFormat_RGBA16,0)->GetColorBuffer(0)->ToTexture();
 
 			//Frame buffers
 			mpEdgeSmooth_LinearDepthBuffer = mpGraphics->CreateFrameBuffer("EdgeSmoothLinearDepth");
