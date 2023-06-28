@@ -55,6 +55,7 @@ namespace hpl {
 	#define kVar_afDissolveAmount				4
 	#define kVar_avFrenselBiasPow				5
 	#define kVar_a_mtxInvViewRotation			6
+	#define kVar_a_mtxModel						7
 
 
 	//------------------------------
@@ -183,6 +184,8 @@ namespace hpl {
 		
 		mpProgramManager->SetupGenerateProgramData(	eMaterialRenderMode_Z,"Z","deferred_base_vtx.glsl", "deferred_base_frag.glsl", 
 													vZFeatureVec,kZFeatureNum, defaultVars);
+		
+		mpProgramManager->AddGenerateProgramVariableId("a_mtxModel", kVar_a_mtxModel, eMaterialRenderMode_Diffuse);
 		
 		mpProgramManager->AddGenerateProgramVariableId("a_mtxUV",kVar_a_mtxUV,eMaterialRenderMode_Z);
 		mpProgramManager->AddGenerateProgramVariableId("afDissolveAmount",kVar_afDissolveAmount,eMaterialRenderMode_Z);
@@ -337,7 +340,8 @@ namespace hpl {
 		mpProgramManager->AddGenerateProgramVariableId("avHeightMapScaleAndBias",kVar_avHeightMapScaleAndBias, eMaterialRenderMode_Diffuse);
 		mpProgramManager->AddGenerateProgramVariableId("a_mtxUV",kVar_a_mtxUV,eMaterialRenderMode_Diffuse);
 		mpProgramManager->AddGenerateProgramVariableId("avFrenselBiasPow", kVar_avFrenselBiasPow,eMaterialRenderMode_Diffuse);
-		mpProgramManager->AddGenerateProgramVariableId("a_mtxInvViewRotation", kVar_a_mtxInvViewRotation,eMaterialRenderMode_Diffuse);
+		mpProgramManager->AddGenerateProgramVariableId("a_mtxInvViewRotation", kVar_a_mtxInvViewRotation, eMaterialRenderMode_Diffuse);
+		mpProgramManager->AddGenerateProgramVariableId("a_mtxModel", kVar_a_mtxModel, eMaterialRenderMode_Diffuse);
 
 		mpProgramManager->AddGenerateProgramVariableId("a_mtxUV",kVar_a_mtxUV,eMaterialRenderMode_Illumination);
 		mpProgramManager->AddGenerateProgramVariableId("afColorMul",kVar_afColorMul,eMaterialRenderMode_Illumination);
@@ -348,6 +352,10 @@ namespace hpl {
 	void cMaterialType_SolidDiffuse::CompileSolidSpecifics(cMaterial *apMaterial)
 	{
 		cMaterialType_SolidDiffuse_Vars *pVars = (cMaterialType_SolidDiffuse_Vars*)apMaterial->GetVars();
+
+		//////////////////////////////////
+		//Base specifics (required for model matrix)
+		apMaterial->SetHasObjectSpecificsSettings(eMaterialRenderMode_Diffuse, true);
 
 		//////////////////////////////////
 		//Z specifics
@@ -571,19 +579,29 @@ namespace hpl {
 	void cMaterialType_SolidDiffuse::SetupObjectSpecificData(	eMaterialRenderMode aRenderMode, iGpuProgram* apProgram, iRenderable *apObject,
 																iRenderer *apRenderer)
 	{
-		
+
+		/////////////////////////
+		//Model matrix
+		if (aRenderMode == eMaterialRenderMode_Diffuse)
+		{
+			bool bRet = apProgram->SetMatrixf(kVar_a_mtxModel, apObject->GetWorldMatrix());
+			
+			if (bRet==false)Error("Could not set variable kVar_a_mtxModel\n");
+		}
+
 		////////////////////////////
 		//Z Dissolve
 		if(aRenderMode == eMaterialRenderMode_Z_Dissolve)
 		{
 			bool bRet = apProgram->SetFloat(kVar_afDissolveAmount, apObject->GetCoverageAmount());
-			if(bRet==false)Error("Could not set variable!\n");
+			if(bRet==false)Error("Could not set variable kVar_afDissolveAmount\n");
 		}
 		////////////////////////////
 		//Illumination
 		else if(aRenderMode == eMaterialRenderMode_Illumination)
 		{
 			bool bRet = apProgram->SetFloat(kVar_afColorMul, apObject->GetIlluminationAmount());
+			if (bRet == false)Error("Could not set variable kVar_afColorMul\n");
 		}
 	}
 

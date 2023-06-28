@@ -109,7 +109,8 @@ namespace hpl {
 
 	void iMaterialType::Reload()
 	{
-		DestroyData();
+		mpProgramManager->ReloadShadersAndPrograms();
+		//DestroyData();
 		LoadData();
 	}
 	

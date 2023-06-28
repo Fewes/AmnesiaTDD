@@ -24,6 +24,8 @@
 #include "physics/Physics.h"
 #include "ai/AI.h"
 #include "resources/Resources.h"
+#include "resources/MaterialManager.h"
+#include "resources/GpuShaderManager.h"
 #include "graphics/Graphics.h"
 #include "gui/Gui.h"
 #include "haptic/Haptic.h"
@@ -768,6 +770,16 @@ namespace hpl {
 		mpMutex->Unlock();
 
 		return bRet;
+	}
+
+	void cEngine::ReloadShaders()
+	{
+		//mpResources->GetMaterialManager()->RecompileMaterials();
+		//mpScene->ReloadViewportPrograms();
+
+		mpResources->GetGpuShaderManager()->ReloadShaders();
+		mpResources->GetMaterialManager()->LinkMaterialPrograms();
+		mpScene->LinkViewportPrograms();
 	}
 
 	//-----------------------------------------------------------------------

@@ -244,6 +244,8 @@ namespace hpl {
 
 	void cGraphics::ReloadRendererData()
 	{
+		Log("Reloading renderers (count = %d)\n", mvRenderers.size());
+
 		for(size_t i=0; i< mvRenderers.size(); ++i)
 		{
 			iRenderer *pRenderer = mvRenderers[i];
@@ -471,12 +473,23 @@ namespace hpl {
 		pProgram->SetShader(eGpuShaderType_Fragment, pFragShader);
 		pProgram->Link();
 
+		mvAllPrograms.push_back(pProgram);
+
         return pProgram;		
 	}
 	
 	void cGraphics::DestroyGpuProgram(iGpuProgram* apProgram)
 	{
 		STLFindAndDelete(mlstGpuPrograms, apProgram);
+	}
+
+	void cGraphics::ReloadAllGpuPrograms()
+	{
+		for (auto it : mvAllPrograms)
+		{
+			it->Bind();
+			it->Link();
+		}
 	}
 
 	//-----------------------------------------------------------------------
@@ -516,6 +529,7 @@ namespace hpl {
 		for(;it != m_mapMaterialTypes.end(); ++it)
 		{
 			iMaterialType *pType = it->second;
+			Log("Reloading material type %s\n", pType->GetName().c_str());
 			pType->Reload();
 		}
 	}

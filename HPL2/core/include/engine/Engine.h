@@ -158,6 +158,8 @@ namespace hpl {
 		void SetPaused(bool abPaused);
 		bool GetPaused();
 
+		void ReloadShaders();
+
 		static void SetDeviceWasPlugged() { mbDevicePlugged = true; }
 		static void SetDeviceWasRemoved() { mbDeviceRemoved = true; }
 		

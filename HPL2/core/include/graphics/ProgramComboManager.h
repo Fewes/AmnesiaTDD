@@ -121,6 +121,8 @@ namespace hpl {
 
 		void SetName( const tString& asName){ msName = asName;}
 
+		void LinkPrograms();
+
 		iGpuProgram* GenerateProgram(int alMainMode, int alFlags);
 		int GetGenerateCombinationNum(int alMainMode){ return mvCombinationNum[alMainMode]; }
 
@@ -133,6 +135,8 @@ namespace hpl {
 
 		void DestroyGeneratedProgram(int alMainMode, iGpuProgram* apProgram);
 		void DestroyGeneratedShader(int alMainMode, iGpuShader* apShader, eGpuShaderType aType);
+
+		void DestroyPrograms(int alMainMode);
 		
 		iGpuShader *CreateShader(const tString& asName, eGpuShaderType aType, cParserVarContainer *apVars, bool abAddtoList);
 		iGpuProgram *CreateProgram(const tString& asName, bool abAddtoList);
@@ -150,6 +154,7 @@ namespace hpl {
 												bool abAddtoList);
 
 		void DestroyShadersAndPrograms();
+		void ReloadShadersAndPrograms();
 
 	private:
 		tString GenerateProgramName(int alMainMode, int alBitFlags);

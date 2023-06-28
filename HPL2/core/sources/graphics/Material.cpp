@@ -184,23 +184,74 @@ namespace hpl {
 		for(int j=0;j<2; ++j)
 		{
 			iGpuProgram *pPrevProg = mvPrograms[j][i];
-			mvPrograms[j][i] = mpType->GetGpuProgram(this, (eMaterialRenderMode)i, j);
-
+			
 			//Destroy any previous program (this is so recompilations work with program count!)
-			if(pPrevProg) mpType->DestroyProgram(this, (eMaterialRenderMode)i,pPrevProg, j);
+			if (pPrevProg)
+			{
+				mpType->DestroyProgram(this, (eMaterialRenderMode)i, pPrevProg, j);
+			}
+
+			mvPrograms[j][i] = mpType->GetGpuProgram(this, (eMaterialRenderMode)i, j);
 		}
 
 		///////////////////
 		// Compile texture lookup
-		for(int i=0;i<eMaterialRenderMode_LastEnum; ++i) 
-			for(int j=0; j<kMaxTextureUnits; ++j)
+		for (int i = 0; i < eMaterialRenderMode_LastEnum; ++i)
+		{
+			for (int j = 0; j < kMaxTextureUnits; ++j)
 			{
 				mvTextureInUnit[i][j] = mpType->GetTextureForUnit(this, (eMaterialRenderMode)i, j);
 			}
+		}
 		
 		///////////////////
 		// Type specifics
 		mpType->CompileMaterialSpecifics(this);
+	}
+
+	void cMaterial::DestroyPrograms()
+	{
+		for (int i = 0; i < eMaterialRenderMode_LastEnum; ++i)
+		for (int j = 0; j < 2; ++j)
+		{
+			if (mvPrograms[j][i])
+			{
+				mpType->DestroyProgram(this, (eMaterialRenderMode)i, mvPrograms[j][i], j);
+			}
+			mvPrograms[j][i] = NULL;
+		}
+
+		/*
+		for (int i = 0; i < eMaterialRenderMode_LastEnum; ++i)
+		for (int j = 0; j < 2; ++j)
+		{
+			iGpuProgram* pPrevProg = mvPrograms[j][i];
+
+			if (pPrevProg)
+			{
+				mpType->DestroyProgram(this, (eMaterialRenderMode)i, pPrevProg, j);
+			}
+
+			mvPrograms[j][i] = NULL;
+		}
+		*/
+	}
+
+	void cMaterial::LinkPrograms()
+	{
+		for (int i = 0; i < eMaterialRenderMode_LastEnum; ++i)
+		for (int j = 0; j < 2; ++j)
+		{
+			if (mvPrograms[j][i])
+			{
+				mvPrograms[j][i]->Link();
+			}
+		}
+	}
+
+	bool cMaterial::Reload()
+	{
+		return false;
 	}
 	
 	//-----------------------------------------------------------------------

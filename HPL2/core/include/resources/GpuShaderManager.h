@@ -52,11 +52,16 @@ namespace hpl {
 		 */
 		iGpuShader* CreateShader(const tString& asName,eGpuShaderType aType, cParserVarContainer *apVarContainer);
 
+		void ReloadShaders();
+
 		void Destroy(iResourceBase* apResource);
 		void Unload(iResourceBase* apResource);
 	
 	private:
 		bool IsShaderSupported(const tString& asName, eGpuShaderType aType);
+
+		std::map<iGpuShader*, cParserVarContainer> m_mapAllShaders;
+		std::map<iGpuShader*, int> m_mapShaderHashes;
 
 		iLowLevelGraphics *mpLowLevelGraphics;
 		cPreprocessParser* mpPreprocessParser;

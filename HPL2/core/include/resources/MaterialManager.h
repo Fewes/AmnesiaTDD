@@ -57,6 +57,8 @@ namespace hpl {
 
 		cMaterial* CreateCustomMaterial(const tString& asName, iMaterialType *apMaterialType);
 
+		void LinkMaterialPrograms();
+
 		tString GetTextureString(eMaterialTexture aType);
 
 		void SetDisableRenderDataLoading(bool abX){ mbDisableRenderDataLoading = abX;}

@@ -215,6 +215,7 @@ namespace hpl {
 	
 	bool cRendererDeferred::LoadData()
 	{
+
 		cVector2l vRelfectionSize = cVector2l(mvScreenSize.x/mlReflectionSizeDiv, mvScreenSize.y/mlReflectionSizeDiv);
 
 		Log("Setting up G-Bugger: type: %d texturenum: %d\n", mGBufferType, mlNumOfGBufferTextures);
@@ -765,6 +766,8 @@ namespace hpl {
 
 		mpProgramManager->DestroyShadersAndPrograms();
 	}
+
+	//-----------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------
 

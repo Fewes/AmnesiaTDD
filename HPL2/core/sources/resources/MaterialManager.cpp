@@ -289,6 +289,17 @@ namespace hpl {
 
 	//-----------------------------------------------------------------------
 
+	void cMaterialManager::LinkMaterialPrograms()
+	{
+		auto matIt = GetResourceBaseIterator();
+		while (matIt.HasNext())
+		{
+			cMaterial* pMat = static_cast<cMaterial*>(matIt.Next());
+
+			pMat->LinkPrograms();
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// PRIVATE METHODS
 	//////////////////////////////////////////////////////////////////////////

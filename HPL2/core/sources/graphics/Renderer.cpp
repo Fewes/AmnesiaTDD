@@ -486,6 +486,13 @@ namespace hpl {
 
 	//-----------------------------------------------------------------------
 
+	void iRenderer::LinkPrograms()
+	{
+		mpProgramManager->LinkPrograms();
+	};
+
+	//-----------------------------------------------------------------------
+
 	iTexture* iRenderer::GetPostEffectTexture()
 	{
 		if(mpCurrentRenderTarget->mpFrameBuffer)

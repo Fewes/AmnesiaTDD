@@ -123,6 +123,8 @@ namespace hpl {
 		iGpuProgram* CreateGpuProgramFromShaders(	const tString& asName, const tString& asVtxShader,const tString& asFragShader,
 													cParserVarContainer *apVarContainer);
 		void DestroyGpuProgram(iGpuProgram* apProgram);
+
+		void ReloadAllGpuPrograms();
             
 		void AddMaterialType(iMaterialType *apType, const tString& asName);
 		iMaterialType *GetMaterialType(const tString& asName);
@@ -155,6 +157,8 @@ namespace hpl {
 		tGpuProgramList mlstGpuPrograms;
 		tMaterialTypeMap m_mapMaterialTypes;
 		tPostEffectList mlstPostEffects;
+
+		std::vector<iGpuProgram*> mvAllPrograms;
 
 		bool mbScreenIsSetup;
 	};

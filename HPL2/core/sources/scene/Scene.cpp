@@ -262,6 +262,14 @@ namespace hpl {
 		}
 	}
 
+	void cScene::LinkViewportPrograms()
+	{
+		for (auto view : mlstViewports)
+		{
+			view->GetRenderer()->LinkPrograms();
+		}
+	}
+
 	//-----------------------------------------------------------------------
 
 	void cScene::PostUpdate(float afTimeStep)

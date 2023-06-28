@@ -73,6 +73,8 @@ namespace hpl {
 		iMaterialType * GetType(){ return mpType; }
 
 		void Compile();
+		void DestroyPrograms();
+		void LinkPrograms();
 
 		void SetTexture(eMaterialTexture aType, iTexture *apTexture);
 		iTexture *GetTexture(eMaterialTexture aType);
@@ -148,7 +150,8 @@ namespace hpl {
 		static bool GetDestroyTypeSpecifics(){ return mbDestroyTypeSpecifics; }
 
 		//resources stuff.
-		bool Reload(){ return false;}
+		//bool Reload(){ return false;}
+		bool Reload();
 		void Unload(){}
 		void Destroy(){}
 		

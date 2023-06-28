@@ -126,7 +126,6 @@ namespace hpl{
 				Log("Shader code:\n-------------------\n");
 				
 				LogShaderCode(apStringData);
-	            
 				
 				Log("---------------------\n");
 				Log("Compile log:\n");

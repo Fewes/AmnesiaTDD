@@ -94,6 +94,49 @@ namespace hpl {
 
 	//--------------------------------------------------------------------------
 
+	void cProgramComboManager::DestroyPrograms(int alMainMode)
+	{
+		for (auto it : mvProgramSets[alMainMode])
+		{
+			cProgramComboProgram* pProgData = it.second;
+
+			iGpuProgram* pProgram = pProgData->mpProgram;
+
+			it.second->mlUserCount = 0;
+
+			/////////////////////////
+			//Destroy program
+			//Log("    Destroying program '%s'/%d id: %d\n", pProgram->GetName().c_str(),pProgram, pProgram->GetUserId());
+			if (pProgram) hplDelete(pProgram);
+			hplDelete(pProgData);
+
+			/*
+			/////////////////////////
+			//Destroy shaders (must be done after program deletion!)
+			iGpuShader* pVtxShader = pProgram->GetShader(eGpuShaderType_Vertex);
+			iGpuShader* pFragShader = pProgram->GetShader(eGpuShaderType_Fragment);
+			if (pVtxShader)
+				//DestroyGeneratedShader(alMainMode, pVtxShader, eGpuShaderType_Vertex);
+				DestroyShader(pVtxShader);
+			if (pFragShader)
+				DestroyShader(pFragShader);
+				//DestroyGeneratedShader(alMainMode, pFragShader, eGpuShaderType_Fragment);
+			*/
+		}
+		mvProgramSets[alMainMode].clear();
+	}
+
+	void cProgramComboManager::LinkPrograms()
+	{
+		for (auto sets : mvProgramSets)
+		{
+			for (auto set : sets)
+			{
+				set.second->mpProgram->Link();
+			}
+		}
+	}
+
 	iGpuProgram* cProgramComboManager::GenerateProgram(int alMainMode, int alFlags)
 	{
 		cProgramComboProgram *pProgData = NULL;
@@ -397,6 +440,30 @@ namespace hpl {
 		}
 
 		return pProgram;
+	}
+
+	void cProgramComboManager::ReloadShadersAndPrograms()
+	{
+		//tProgramComboShaderMap* pShaderSet = aType == eGpuShaderType_Vertex ? &mvVtxShaderSets[alMainMode] : &mvFragShaderSets[alMainMode];
+
+		for (size_t i = 0; i < mvVtxShaderSets.size(); i++)
+		{
+			tProgramComboShaderMap* pShaderSet = &mvVtxShaderSets[i];
+			for (tProgramComboShaderMapIt it = pShaderSet->begin(); it != pShaderSet->end(); it++)
+			{
+				it->second->mpShader->Reload();
+			}
+		}
+
+		for (size_t i = 0; i < mvFragShaderSets.size(); i++)
+		{
+			tProgramComboShaderMap* pShaderSet = &mvFragShaderSets[i];
+			for (tProgramComboShaderMapIt it = pShaderSet->begin(); it != pShaderSet->end(); it++)
+			{
+				it->second->mpShader->Reload();
+			}
+		}
+
 	}
 
 	

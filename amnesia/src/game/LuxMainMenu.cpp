@@ -576,6 +576,7 @@ void cLuxMainMenu::AppLostInputFocus()
 
 void cLuxMainMenu::AppGotInputFocus()
 {
+	gpBase->mpEngine->ReloadShaders();
 	if(gpBase->mpMapHandler->MapIsLoaded()==false)
 	{
 		cMusicHandler* pMusHdlr = gpBase->mpEngine->GetSound()->GetMusicHandler();

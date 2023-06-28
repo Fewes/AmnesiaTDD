@@ -534,6 +534,7 @@ void cLuxMapHandler::AppLostInputFocus()
 
 void cLuxMapHandler::AppGotInputFocus()
 {
+	gpBase->mpEngine->ReloadShaders();
 	ResumeSoundsAndMusic();
 }
 

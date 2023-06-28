@@ -747,6 +747,62 @@ void cLuxInputHandler::UpdateGlobalInput()
 	}
 
 	/////////////////
+	// Render debugging
+	if (mpInput->BecameTriggerd(eLuxAction_QuickSave))
+	{
+		cRendererDeferred::SetDebugRenderFrameBuffers(!cRendererDeferred::GetDebugRenderFrameBuffers());
+	}
+	if (mpInput->BecameTriggerd(eLuxAction_QuickLoad))
+	{	
+		//gpBase->mpEngine->GetResources()->GetGpuShaderManager()->ReloadAllShaders();
+		//mpGraphics->ReloadAllGpuPrograms();
+
+		//mpGraphics->ReloadMaterials();
+
+		/*
+		auto matIt = gpBase->mpEngine->GetResources()->GetMaterialManager()->GetResourceBaseIterator();
+		while (matIt.HasNext())
+		{
+			cMaterial* pMat = static_cast<cMaterial*>(matIt.Next());
+
+			pMat->DestroyPrograms();
+		}
+
+		matIt = gpBase->mpEngine->GetResources()->GetMaterialManager()->GetResourceBaseIterator();
+		while (matIt.HasNext())
+		{
+			cMaterial* pMat = static_cast<cMaterial*>(matIt.Next());
+
+			pMat->Compile();
+		}
+		*/
+
+		gpBase->mpEngine->ReloadShaders();
+
+		/*
+		gpBase->mpEngine->GetResources()->GetMaterialManager()->RecompileMaterials();
+		gpBase->mpEngine->GetScene()->ReloadViewportPrograms();
+		*/
+
+		/*
+		auto matIt = gpBase->mpEngine->GetResources()->GetMaterialManager()->GetResourceBaseIterator();
+		while (matIt.HasNext())
+		{
+			cMaterial* pMat = static_cast<cMaterial*>(matIt.Next());
+
+			tString path = pMat->GetName();
+			int beginIdx = path.rfind('/');
+			tString filename = path.substr(beginIdx + 1);
+
+			Log("Reloading material: %s\n", filename.c_str());
+			
+			pMat->Compile();
+			pMat->Reload();
+		}
+		*/
+	}
+
+	/////////////////
 	// Send to GUI
 	if(CurrentStateSendsInputToGui())
 	{

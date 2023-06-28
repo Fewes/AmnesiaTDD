@@ -95,6 +95,59 @@ namespace hpl {
 		}
 	}
 
+	void cGpuShaderManager::ReloadShaders()
+	{
+		Log("--------- RELOADING SHADERS ---------\n");
+
+		auto it = m_mapAllShaders.begin();
+		for (; it != m_mapAllShaders.end(); ++it)
+		{
+			iGpuShader* pShader = it->first;
+
+			if (pShader == NULL)
+			{
+				Error("Unable to reload shader (shader was NULL)");
+				continue;
+			}
+
+			cParserVarContainer apVarContainer = it->second;
+			tWString sPath = pShader->GetFullPath();
+
+			if (sPath == _W(""))
+			{
+				Error("Unable to reload shader (path invalid)");
+				continue;
+			}
+
+			tString sFileData;
+			tString sParsedOutput;
+
+			/////////////////////////////////
+			//Load data
+			unsigned int lFileSize = cPlatform::GetFileSize(sPath);
+
+			sFileData.resize(lFileSize);
+			cPlatform::CopyFileToBuffer(sPath, &sFileData[0], lFileSize);
+
+			int hash = cString::GetHash(sFileData);
+			if (m_mapShaderHashes[pShader] == hash)
+			{
+				continue;
+			}
+			else
+			{
+				m_mapShaderHashes[pShader] = hash;
+			}
+
+			mpPreprocessParser->Parse(&sFileData, &sParsedOutput, &apVarContainer, cString::GetFilePathW(sPath));
+			pShader->CreateFromString(sParsedOutput.c_str());
+
+			Log("  %s\n", pShader->GetName().c_str());
+		}
+
+		Log("--------- SHADER RELOAD END ---------\n");
+	}
+
 	//-----------------------------------------------------------------------
 
 	iGpuShader* cGpuShaderManager::CreateShader(const tString& asName, eGpuShaderType aType,
@@ -105,7 +158,7 @@ namespace hpl {
 		BeginLoad(asName);
 
 		/////////////////////////////////////////
-        // If we have a variable container do NOT add the shader as a resource!
+		// If we have a variable container do NOT add the shader as a resource!
 		if(apVarContainer)
 		{
 			tString sFileData;
@@ -126,6 +179,16 @@ namespace hpl {
 
 			sFileData.resize(lFileSize);
 			cPlatform::CopyFileToBuffer(sPath,&sFileData[0],lFileSize);
+
+			int hash = cString::GetHash(sFileData);
+			if (m_mapShaderHashes.find(pShader) == m_mapShaderHashes.end())
+			{
+				m_mapShaderHashes.insert(std::pair<iGpuShader*, int>(pShader, hash));
+			}
+			else
+			{
+				m_mapShaderHashes[pShader] = hash;
+			}
 
 			/////////////////////////////////
 			//Parse file
@@ -168,6 +231,8 @@ namespace hpl {
 					
 				}
 			}
+
+			m_mapAllShaders.insert(std::pair<iGpuShader*, cParserVarContainer>(pShader, *apVarContainer));
 		}
 		/////////////////////////////////////////
 		// Normal resource load
@@ -194,7 +259,6 @@ namespace hpl {
 			if(pShader)pShader->IncUserCount();
 			else Error("Couldn't load program '%s'\n",asName.c_str());
 		}
-		
 		
 		EndLoad();
 		return pShader;

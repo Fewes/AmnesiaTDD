@@ -82,6 +82,8 @@ namespace hpl {
 		 */
 		void Render(float afFrameTime, tFlag alFlags);
 
+		void LinkViewportPrograms();
+
 		void PostUpdate(float afTimeStep);
 		
 		///// VIEW PORT METHODS ////////////////////
