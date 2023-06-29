@@ -6,6 +6,8 @@
 #version 120
 #extension GL_ARB_texture_rectangle : enable
 
+@include core.glsl
+
 ////////////////////
 //Textures
 uniform sampler2DRect  aDiffuseMap;
@@ -30,7 +32,6 @@ void main()
 	@endif
 	
 	//Multiply with light color and AO (w).
-	vec3 vLightColor = avLightColor.xyz;
-	vLightColor = pow(vLightColor, vec3(2.2));
+	vec3 vLightColor = SRGBToLinear(avLightColor.xyz);
 	gl_FragColor.xyz = vColorVal.xyz * vLightColor;
 }

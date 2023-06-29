@@ -754,7 +754,7 @@ void cLuxInputHandler::UpdateGlobalInput()
 	}
 	if (mpInput->BecameTriggerd(eLuxAction_QuickLoad))
 	{	
-		gpBase->mpEngine->ReloadShaders();
+		gpBase->mpEngine->ReloadShaders(true);
 	}
 
 	/////////////////

@@ -52,7 +52,7 @@ namespace hpl {
 		 */
 		iGpuShader* CreateShader(const tString& asName,eGpuShaderType aType, cParserVarContainer *apVarContainer);
 
-		void ReloadShaders();
+		void ReloadShaders(bool reloadUnchanged = false);
 
 		void Destroy(iResourceBase* apResource);
 		void Unload(iResourceBase* apResource);

@@ -772,9 +772,9 @@ namespace hpl {
 		return bRet;
 	}
 
-	void cEngine::ReloadShaders()
+	void cEngine::ReloadShaders(bool reloadUnchanged)
 	{
-		mpResources->GetGpuShaderManager()->ReloadShaders();
+		mpResources->GetGpuShaderManager()->ReloadShaders(reloadUnchanged);
 		mpGraphics->LinkAllGpuPrograms();
 		mpResources->GetMaterialManager()->LinkMaterialPrograms();
 		mpScene->LinkViewportPrograms();

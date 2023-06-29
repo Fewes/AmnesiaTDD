@@ -7,6 +7,7 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
+@include core.glsl
 @include helper_float_packing.glsl
 
 //--------------------------------------------------------------
@@ -107,8 +108,7 @@ void main()
 	fDepth = min(fDepth - avFogStartAndLength.x * 0.0, avFogStartAndLength.y);
 	float fAmount = max(fDepth / (avFogStartAndLength.x + avFogStartAndLength.y), 0.0);
 	
-	vec3 vFogColor = avFogColor.xyz;
-	vFogColor = pow(vFogColor, vec3(2.2));
+	vec3 vFogColor = SRGBToLinear(avFogColor.xyz);
 
 	gl_FragColor.xyz = vFogColor;
 	gl_FragColor.w = pow(fAmount, afFalloffExp) * avFogColor.w;

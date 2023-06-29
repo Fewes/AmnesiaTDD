@@ -107,7 +107,7 @@ namespace hpl {
 		
 		for(int i=0;i<2; ++i)
 		{
-			mpBlurBuffer[i] = mpGraphics->GetTempFrameBuffer(vSize/4,ePixelFormat_RGBA,i);
+			mpBlurBuffer[i] = mpGraphics->GetTempFrameBuffer(vSize / 4, ePixelFormat_RGBA16, i);
 			if(mpBlurBuffer[i])
 				mpBlurTexture[i] = mpBlurBuffer[i]->GetColorBuffer(0)->ToTexture();
 		}

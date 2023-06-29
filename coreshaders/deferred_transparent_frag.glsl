@@ -6,6 +6,8 @@
 #version 120
 #extension GL_ARB_texture_rectangle : enable
 
+@include core.glsl
+
 @include helper_reflection.glsl
 
 varying vec4 gvColor;
@@ -86,7 +88,7 @@ void main()
 	@ifdef UseDiffuseMap
 		vFinalColor = texture2D(aDiffuseMap, gl_TexCoord[0].xy) * gvColor;
 		// Linearize
-		vFinalColor.xyz = pow(vFinalColor.xyz, vec3(2.2));
+		vFinalColor.xyz = SRGBToLinear(vFinalColor.xyz);
 	@else
 		vFinalColor = vec4(0.0, 0.0 ,0.0, 1.0);
 	@endif

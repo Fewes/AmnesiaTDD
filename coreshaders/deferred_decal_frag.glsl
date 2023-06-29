@@ -5,6 +5,8 @@
 ////////////////////////////////////////////////////////
 #version 120
 
+@include core.glsl
+
 varying vec4 gvColor;
 
 uniform sampler2D aDiffuseMap;
@@ -17,7 +19,7 @@ void main()
 	vec4 vFinalColor = texture2D(aDiffuseMap, gl_TexCoord[0].xy);
 
 	// Linearize
-	vFinalColor.xyz = pow(vFinalColor.xyz, vec3(2.2));
+	vFinalColor.xyz = SRGBToLinear(vFinalColor.xyz);
 		
 	gl_FragColor = vFinalColor * gvColor;
 }

@@ -6,6 +6,7 @@
 #version 120
 #extension GL_ARB_texture_rectangle : enable
 
+@include core.glsl
 @include helper_float_packing.glsl
 @include helper_reflection.glsl
 
@@ -171,7 +172,7 @@ void main()
 	@endif
 	
 	// Linearize
-	vDiffuseColor.xyz = pow(vDiffuseColor.xyz, vec3(2.2));
+	vDiffuseColor.xyz = SRGBToLinear(vDiffuseColor.xyz);
 	
 	//////////////////////////////////
 	//Set Diffuse color if no environemnt mapping is used.
@@ -247,7 +248,7 @@ void main()
 			gl_FragData[2].w = vSpecVals.y;
 		@else
 			gl_FragData[1].w = 0.0;
-			gl_FragData[2].w = 0.0;
+			gl_FragData[2].w = 0.4;
 		@endif
 	@endif
 }		

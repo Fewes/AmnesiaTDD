@@ -2,6 +2,8 @@
 
 #extension GL_ARB_texture_rectangle : enable
 
+@include core.glsl
+
 uniform sampler2DRect diffuseMap;
 @define sampler_diffuseMap 0
 
@@ -77,14 +79,18 @@ void main()
 {
 	vec3 vColor = texture2DRect(diffuseMap, gl_TexCoord[0].xy).xyz;
 
+#ifdef USE_TONEMAPPING
 	// vColor = SimpleReinhardToneMapping(vColor);
 	// vColor = LumaBasedReinhardToneMapping(vColor);
 	// vColor = WhitePreservingLumaBasedReinhardToneMapping(vColor);
 	// vColor = RomBinDaHouseToneMapping(vColor);
 	vColor = Uncharted2ToneMapping(vColor);
 	// vColor = ACESToneMapping(vColor);
+#endif
 
-	vColor = ApplyGamma(vColor, 2.2);
+#ifdef USE_LINEAR_RENDERING
+	vColor = LinearToSRGB(vColor);
+#endif
 
 	// Dither gets rid of ugly color banding
 	vColor = max(vec3(0.0), vColor + (Dither(gl_TexCoord[0].xy) - 0.5) / 255.0);

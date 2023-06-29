@@ -95,7 +95,7 @@ namespace hpl {
 		}
 	}
 
-	void cGpuShaderManager::ReloadShaders()
+	void cGpuShaderManager::ReloadShaders(bool reloadUnchanged)
 	{
 		bool reloadedOne = false;
 
@@ -131,7 +131,7 @@ namespace hpl {
 			cPlatform::CopyFileToBuffer(sPath, &sFileData[0], lFileSize);
 
 			int hash = cString::GetHash(sFileData);
-			if (m_mapShaderHashes[pShader] == hash)
+			if (m_mapShaderHashes[pShader] == hash && !reloadUnchanged)
 			{
 				continue;
 			}

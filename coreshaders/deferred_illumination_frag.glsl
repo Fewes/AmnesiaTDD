@@ -5,6 +5,8 @@
 ////////////////////////////////////////////////////////
 #version 120
 
+@include core.glsl
+
 uniform sampler2D aDiffuse;
 @define sampler_aDiffuse 0
 
@@ -14,6 +16,6 @@ void main()
 {
 	vec4 vDiffuseColor = texture2D(aDiffuse, gl_TexCoord[0].xy);
 	// Linearize
-	vDiffuseColor.xyz = pow(vDiffuseColor.xyz, vec3(2.2));
+	vDiffuseColor.xyz = SRGBToLinear(vDiffuseColor.xyz);
 	gl_FragColor = vDiffuseColor * afColorMul;
 }
