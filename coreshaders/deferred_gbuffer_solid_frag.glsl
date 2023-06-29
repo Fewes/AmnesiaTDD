@@ -170,6 +170,8 @@ void main()
 		vec4 vDiffuseColor = texture2D(aDiffuseMap, vTexCoord);
 	@endif
 	
+	// Linearize
+	vDiffuseColor.xyz = pow(vDiffuseColor.xyz, vec3(2.2));
 	
 	//////////////////////////////////
 	//Set Diffuse color if no environemnt mapping is used.

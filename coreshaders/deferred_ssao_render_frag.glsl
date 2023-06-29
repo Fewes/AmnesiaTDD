@@ -80,6 +80,8 @@ void main()
 	}
 	
 	float fOcc = fOccSum / (2.0 * $SampleNumDiv2);
+
+	// fOcc = 1.0;
 	
 	gl_FragColor.xyz = vec3(fOcc * fOcc);
 	

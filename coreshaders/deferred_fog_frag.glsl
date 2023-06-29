@@ -104,9 +104,12 @@ void main()
 		@endif	
 	@endif
 	
-	fDepth = min(fDepth - avFogStartAndLength.x, avFogStartAndLength.y);
-	float fAmount = max(fDepth / avFogStartAndLength.y,0.0);
+	fDepth = min(fDepth - avFogStartAndLength.x * 0.0, avFogStartAndLength.y);
+	float fAmount = max(fDepth / (avFogStartAndLength.x + avFogStartAndLength.y), 0.0);
 	
-	gl_FragColor.xyz = avFogColor.xyz;
+	vec3 vFogColor = avFogColor.xyz;
+	vFogColor = pow(vFogColor, vec3(2.2));
+
+	gl_FragColor.xyz = vFogColor;
 	gl_FragColor.w = pow(fAmount, afFalloffExp) * avFogColor.w;
 }

@@ -7,6 +7,8 @@
 
 //---------------------------------------------
 
+uniform mat4 a_mtxModel;
+
 @ifdef UseNormals
 	varying vec3 gvNormal;
 @endif
@@ -89,10 +91,13 @@ void main()
 		@endif
 	@endif
 
+	mat3 mtxObjectToWorldDir = mat3(a_mtxModel);
+
 	//////////////////////
 	// Normals
 	@ifdef UseNormals
 		gvNormal = normalize(gl_NormalMatrix * gl_Normal);
+		//gvNormal = normalize(mtxObjectToWorldDir * gl_Normal);
 	@endif
 
 	//////////////////////
@@ -100,9 +105,11 @@ void main()
 	@ifdef UseNormalMapping
 		//To consider: Is gl_NormalMatrix correct here?
 		gvTangent = normalize(gl_NormalMatrix * gl_MultiTexCoord1.xyz);
+		//gvTangent = normalize(mtxObjectToWorldDir * gl_MultiTexCoord1.xyz);
 		
 		//Need to do it in model space (and not view) because reflection normal mapping will fail otherwise!
 		gvBinormal = normalize(gl_NormalMatrix * cross(gl_Normal,gl_MultiTexCoord1.xyz) * gl_MultiTexCoord1.w); 
+		//gvBinormal = cross(gvNormal, gvTangent) * gl_MultiTexCoord1.w;
 	@endif
 	
 	//////////////////////

@@ -122,7 +122,7 @@ namespace hpl{
 				//Log("Setting %s to %d\n",sSamplerName.c_str(), lUnit);
 				GLint lVarHandle = glGetUniformLocation(mlHandle,sSamplerName.c_str());
 				if(lVarHandle<0){
-					Error("Sampler %s does not exist, could not bind it to unit %d\n",sSamplerName.c_str(),lUnit);
+					//Error("Sampler %s does not exist, could not bind it to unit %d\n",sSamplerName.c_str(),lUnit);
 					continue;
 				}
 			

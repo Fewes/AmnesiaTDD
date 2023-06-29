@@ -253,7 +253,7 @@ namespace hpl {
 
 		void Update(float afTimeStep);
 
-		void LinkPrograms();
+		virtual void LinkPrograms();
 
 		inline static int GetRenderFrameCount()  { return mlRenderFrameCount;}
 		inline static void IncRenderFrameCount() { ++mlRenderFrameCount;}

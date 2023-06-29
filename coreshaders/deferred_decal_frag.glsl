@@ -15,6 +15,9 @@ void main()
 	////////////////////
 	//Diffuse 
 	vec4 vFinalColor = texture2D(aDiffuseMap, gl_TexCoord[0].xy);
+
+	// Linearize
+	vFinalColor.xyz = pow(vFinalColor.xyz, vec3(2.2));
 		
 	gl_FragColor = vFinalColor * gvColor;
 }

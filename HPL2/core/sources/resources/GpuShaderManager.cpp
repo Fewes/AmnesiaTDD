@@ -97,7 +97,7 @@ namespace hpl {
 
 	void cGpuShaderManager::ReloadShaders()
 	{
-		Log("--------- RELOADING SHADERS ---------\n");
+		bool reloadedOne = false;
 
 		auto it = m_mapAllShaders.begin();
 		for (; it != m_mapAllShaders.end(); ++it)
@@ -140,13 +140,22 @@ namespace hpl {
 				m_mapShaderHashes[pShader] = hash;
 			}
 
+			if (!reloadedOne)
+			{
+				Log("\n--------- RELOADING SHADERS ---------\n");
+				reloadedOne = true;
+			}
+
 			mpPreprocessParser->Parse(&sFileData, &sParsedOutput, &apVarContainer, cString::GetFilePathW(sPath));
 			pShader->CreateFromString(sParsedOutput.c_str());
 
 			Log("  %s\n", pShader->GetName().c_str());
 		}
 
-		Log("--------- SHADER RELOAD END ---------\n");
+		if (reloadedOne)
+		{
+			Log("--------- SHADER RELOAD END ---------\n\n");
+		}
 	}
 
 	//-----------------------------------------------------------------------
@@ -182,6 +191,7 @@ namespace hpl {
 			cPlatform::CopyFileToBuffer(sPath,&sFileData[0],lFileSize);
 
 			int hash = cString::GetHash(sFileData);
+			/*
 			if (m_mapShaderHashes.find(pShader) == m_mapShaderHashes.end())
 			{
 				m_mapShaderHashes.insert(std::pair<iGpuShader*, int>(pShader, hash));
@@ -190,6 +200,9 @@ namespace hpl {
 			{
 				m_mapShaderHashes[pShader] = hash;
 			}
+			*/
+
+			m_mapShaderHashes[pShader] = hash;
 
 			/////////////////////////////////
 			//Parse file
@@ -219,7 +232,7 @@ namespace hpl {
 					const tString& sVarName = varIt->first;
 					const tString& sVarVal = varIt->second;
 					if(sVarName == "") continue;
-                    
+					
 					tStringVec vStrings;
 					tString sSepp = "_";
 					cString::GetStringVec(sVarName,vStrings,&sSepp);

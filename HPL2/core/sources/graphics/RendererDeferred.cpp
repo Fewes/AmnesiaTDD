@@ -561,6 +561,10 @@ namespace hpl {
 			// Programs
 			cParserVarContainer programVars;
 
+			//Tonemap program
+			mpTonemapProgram = mpGraphics->CreateGpuProgramFromShaders("Tonemap", "deferred_tonemap_vtx.glsl",
+				"deferred_tonemap_frag.glsl", &programVars);
+
 			//Program for unpacking depth to a lower resolution texture
 			if(mGBufferType == eDeferredGBuffer_32Bit)	programVars.Add("Deferred_32bit");
 			else										programVars.Add("Deferred_64bit");
@@ -743,6 +747,7 @@ namespace hpl {
 			mpGraphics->DestroyFrameBuffer(mpSSAOBuffer);
 			mpGraphics->DestroyFrameBuffer(mpSSAOBlurBuffer);
 
+			mpGraphics->DestroyGpuProgram(mpTonemapProgram);
 			mpGraphics->DestroyGpuProgram(mpUnpackDepthProgram);
 			for(int i=0;i<2; ++i)
 				mpGraphics->DestroyGpuProgram(mpSSAOBlurProgram[i]);
@@ -768,6 +773,12 @@ namespace hpl {
 	}
 
 	//-----------------------------------------------------------------------
+
+	void cRendererDeferred::LinkPrograms()
+	{
+		mpProgramManager->LinkPrograms();
+		mpFogProgramManager->LinkPrograms();
+	};
 
 	//-----------------------------------------------------------------------
 
@@ -816,7 +827,8 @@ namespace hpl {
 
 		SetFlatProjection();
 
-		SetProgram(NULL);
+		//SetProgram(NULL); // TODO: Tonemapping
+		SetProgram(mpTonemapProgram);
 		SetTexture(0,mpAccumBufferTexture);
 		SetTextureRange(NULL, 1);
 

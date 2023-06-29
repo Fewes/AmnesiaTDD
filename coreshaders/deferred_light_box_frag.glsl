@@ -30,6 +30,7 @@ void main()
 	@endif
 	
 	//Multiply with light color and AO (w).
-	gl_FragColor.xyz = vColorVal.xyz * avLightColor.xyz; 
-
+	vec3 vLightColor = avLightColor.xyz;
+	vLightColor = pow(vLightColor, vec3(2.2));
+	gl_FragColor.xyz = vColorVal.xyz * vLightColor;
 }

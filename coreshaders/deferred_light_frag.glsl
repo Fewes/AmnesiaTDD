@@ -29,7 +29,8 @@ float ShadowOffsetLookup(sampler2DShadow aShadowMap, vec4 avLocation, vec2 avOff
 
 //--------------------------------------------------------------
 
-
+#define USE_PBR
+#define USE_PHYSICAL_LIGHT_ATTEN
 
 ////////////////////
 //Varying varaibles
@@ -132,6 +133,54 @@ uniform sampler1D  aAttenuationMap;
 
 //--------------------------------------------------------------
 
+#define PI 3.14159265359
+#define saturate(o) clamp(o, 0.0, 1.0)
+
+float pow5(float x) {
+    float x2 = x * x;
+    return x2 * x2 * x;
+}
+
+float D_GGX(float linearRoughness, float NoH, const vec3 h) {
+    // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
+    float oneMinusNoHSquared = 1.0 - NoH * NoH;
+    float a = NoH * linearRoughness;
+    float k = linearRoughness / (oneMinusNoHSquared + a * a);
+    float d = k * k * (1.0 / PI);
+    return d;
+}
+
+float V_SmithGGXCorrelated(float linearRoughness, float NoV, float NoL) {
+    // Heitz 2014, "Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs"
+    float a2 = linearRoughness * linearRoughness;
+    float GGXV = NoL * sqrt((NoV - a2 * NoV) * NoV + a2);
+    float GGXL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
+    return 0.5 / (GGXV + GGXL);
+}
+
+vec3 F_Schlick(const vec3 f0, float VoH) {
+    // Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"
+    return f0 + (vec3(1.0) - f0) * pow5(1.0 - VoH);
+}
+
+float F_Schlick(float f0, float f90, float VoH) {
+    return f0 + (f90 - f0) * pow5(1.0 - VoH);
+}
+
+float Fd_Burley(float linearRoughness, float NoV, float NoL, float LoH) {
+    // Burley 2012, "Physically-Based Shading at Disney"
+    float f90 = 0.5 + 2.0 * linearRoughness * LoH * LoH;
+    float lightScatter = F_Schlick(1.0, f90, NoL);
+    float viewScatter  = F_Schlick(1.0, f90, NoV);
+    return lightScatter * viewScatter * (1.0 / PI);
+}
+
+float Fd_Lambert() {
+    return 1.0 / PI;
+}
+
+//--------------------------------------------------------------
+
 ///////////////////////////////
 // Main program
 void main()
@@ -177,9 +226,27 @@ void main()
 	
 	/////////////////////////////////
 	// Light direction and attenuation
-	vec3 vLightDir = (avLightPos - vPos)*afInvLightRadius;
-	float fAttenuatuion =  texture1D(aAttenuationMap,dot(vLightDir,vLightDir)).x;	
+	vec3 vLightDir = (avLightPos - vPos) * afInvLightRadius;
+	float fLightDistNorm = clamp(1.0 - sqrt(dot(vLightDir,vLightDir)), 0.0, 1.0);
+	float fAttenuation =  texture1D(aAttenuationMap,dot(vLightDir,vLightDir)).x;
+	float fLightDist = length(vLightDir);
 	vLightDir = normalize( vLightDir );
+
+	float lightDist = length(avLightPos - vPos);
+	// fAttenuation = mix(fAttenuation, 1.0 / (lightDist*lightDist + 1.0), 0.99);
+	// fAttenuation *= 1.0 / (lightDist*lightDist + 0.1);
+
+	// Non-physical falloff
+	float fFalloff1 = fLightDistNorm*fLightDistNorm;
+	// Physical falloff (with limit)
+	float fFalloff2 = 1.0 / (lightDist*lightDist + 0.1) * sqrt(fLightDistNorm);
+	// fAttenuation *= 1.0 / (lightDist + 0.1);
+
+#ifdef USE_PHYSICAL_LIGHT_ATTEN
+	// fAttenuation = mix(fAttenuation, fFalloff1 + fFalloff2, 0.999);
+	fAttenuation = mix(fAttenuation, fAttenuation + fFalloff2, 0.999);
+	// fAttenuation += fFalloff2;
+#endif
 	
 	//////////////////////////////
 	//Spot attentuation / gobo
@@ -189,7 +256,7 @@ void main()
 			vec3 vGoboVal = texture2DProj(aGoboMap, vProjectedUv).xyz;
 		@else
 			float fOneMinusCos = 1.0 - dot( vLightDir,  avLightForward);
-			fAttenuatuion *= texture1D(aSpotFalloffMap, fOneMinusCos / afOneMinusCosHalfSpotFOV).x;
+			fAttenuation *= texture1D(aSpotFalloffMap, fOneMinusCos / afOneMinusCosHalfSpotFOV).x;
 		@endif
 	//////////////////////////////
 	//Point gobo
@@ -211,7 +278,8 @@ void main()
 	@ifdef UseSpecular
 		vNormal = normalize(vNormal);
 	@endif
-	
+
+	// vColorVal.xyz = mix(vColorVal.xyz, vec3(1.0), 0.999);
 	
 	/////////////////////////////////
 	//Calculate diffuse color
@@ -231,10 +299,51 @@ void main()
 		@endif
 		
 		vec3 vHalfVec = normalize(vLightDir + normalize(-vPos));
-		fSpecPower = exp2(fSpecPower * 10.0) + 1.0;//Range 0 - 1024
-		vec3 vSpecular = vec3(avLightColor.w * fSpecIntensity *  pow( clamp( dot( vHalfVec, vNormal.xyz), 0.0, 1.0),fSpecPower ) );
+		float fSpecPower2 = exp2(fSpecPower * 10.0) + 1.0;//Range 0 - 1024
+		vec3 vSpecular = vec3(avLightColor.w * fSpecIntensity *  pow( clamp( dot( vHalfVec, vNormal.xyz), 0.0, 1.0),fSpecPower2 ) );
 		vSpecular *= avLightColor.xyz;
 	@endif
+
+#ifdef USE_PBR
+	vec3 v = normalize(-vPos);
+	vec3 n = vNormal;
+	vec3 l = vLightDir;
+	vec3 h = normalize(v + l);
+	vec3 r = normalize(reflect(-v, n));
+
+	float NoV = abs(dot(n, v)) + 1e-5;
+	float NoL = saturate(dot(n, l));
+	float NoH = saturate(dot(n, h));
+	float LoH = saturate(dot(l, h));
+
+	vec3 baseColor = vColorVal.xyz;
+	float roughness = 0.7;
+	float metallic = 0.0;
+
+	@ifdef UseSpecular
+	roughness = 1.0 - fSpecPower;
+	metallic = fSpecIntensity;
+	@endif
+
+	float linearRoughness = roughness * roughness;
+	vec3 diffuseColor = (1.0 - metallic) * baseColor.rgb;
+	vec3 f0 = 0.04 * (1.0 - metallic) + baseColor.rgb * metallic;
+
+	// specular BRDF
+	float D = D_GGX(linearRoughness, NoH, h);
+	float V = V_SmithGGXCorrelated(linearRoughness, NoV, NoL);
+	vec3  F = F_Schlick(f0, LoH);
+	vec3 Fr = (D * V) * F;
+
+	// diffuse BRDF
+	vec3 Fd = diffuseColor * Fd_Burley(linearRoughness, NoV, NoL, LoH);
+
+	vDiffuse = mix(vDiffuse, Fd * avLightColor.xyz * NoL * PI, 0.999);
+	@ifdef UseSpecular
+	// vSpecular = mix(vSpecular, Fr * NoL * PI * avLightColor.w * fSpecIntensity * avLightColor.xyz, 0.999);
+	vSpecular = mix(vSpecular, Fr * NoL * PI * avLightColor.xyz * NoL, 0.999);
+	@endif
+#endif
 	
 	/////////////////////////////////
 	// Caclulate shadow (if any)
@@ -250,7 +359,7 @@ void main()
 		// No Smoothing
 		@ifdef ShadowMapQuality_Low
 		
-			fAttenuatuion *= shadow2DProj(aShadowMap, vProjectedUv).x;
+			fAttenuation *= shadow2DProj(aShadowMap, vProjectedUv).x;
 					
 		///////////////////////
 		// Smoothing
@@ -311,7 +420,7 @@ void main()
 					if(fShadowSum>0.5) 	vDiffuse.xyz = vec3(1,0,0);	
 					else		 	vDiffuse.xyz = vec3(0,1,0);
 					
-					//fAttenuatuion *= fShadowSum;	
+					//fAttenuation *= fShadowSum;	
 				}*/
 			/////////////////////
 			// No Dynamic Branching
@@ -334,7 +443,7 @@ void main()
 			
 			/////////////////////
 			// Add shadow sum to attenuation
-			fAttenuatuion *= fShadowSum;
+			fAttenuation *= fShadowSum;
 		@endif
 		
 	
@@ -344,16 +453,20 @@ void main()
 	//Final color
 	@ifdef UseSpecular
 		@ifdef UseGobo
-			gl_FragColor.xyz = (vSpecular + vDiffuse) * vGoboVal * fAttenuatuion;
+			gl_FragColor.xyz = (vSpecular + vDiffuse) * vGoboVal * fAttenuation;
 		@else
-			gl_FragColor.xyz = (vSpecular + vDiffuse) * fAttenuatuion;
+			gl_FragColor.xyz = (vSpecular + vDiffuse) * fAttenuation;
 		@endif
 	@else
 		@ifdef UseGobo
-			gl_FragColor.xyz = vDiffuse * vGoboVal * fAttenuatuion;
+			gl_FragColor.xyz = vDiffuse * vGoboVal * fAttenuation;
 		@else
-			gl_FragColor.xyz = vDiffuse * fAttenuatuion;
+			gl_FragColor.xyz = vDiffuse * fAttenuation;
 		@endif
+	@endif
+
+	@ifdef UseSpecular
+	// gl_FragColor.xyz = mix(gl_FragColor.xyz, vec3(roughness), 0.999);
 	@endif
 	
 	////////////////////////////////
@@ -362,13 +475,13 @@ void main()
 	//gl_FragColor.xyz = vNormalVal.xyz;
 	//gl_FragColor.xyz = vec3( clamp( dot( vLightDir, vNormalVal.xyz), 0.0 ,1.0) );
 	//gl_FragColor.xyz =  (vPos/10) *0.5 +0.5;
-	//gl_FragColor.xyz =  vec3(fAttenuatuion) * avLightColor.xyz;
+	//gl_FragColor.xyz =  vec3(fAttenuation) * avLightColor.xyz;
 	//gl_FragColor.xyz =  vLightDir*0.5+0.5;
 	//gl_FragColor.xyz =  vDiffuse.xyz;
 	//gl_FragColor.xyz =  vec3(fLDotN);
-	//gl_FragColor.xyz =  vColorVal.xyz;// * avLightColor.xyz * fAttenuatuion * clamp( dot( vLightDir, vNormalVal.xyz), 0.0, 1.0);
+	//gl_FragColor.xyz =  vColorVal.xyz;// * avLightColor.xyz * fAttenuation * clamp( dot( vLightDir, vNormalVal.xyz), 0.0, 1.0);
 	//gl_FragColor.xyz =    vec3(vExtraVal.x);
-	//gl_FragColor.xyz =  avLightColor.xyz * fAttenuatuion * min( dot( vLightDir, vNormalVal.xyz), 1.0);
+	//gl_FragColor.xyz =  avLightColor.xyz * fAttenuation * min( dot( vLightDir, vNormalVal.xyz), 1.0);
 	//gl_FragColor.xyz = vec3(1);
 	//gl_FragColor.xyz = gl_FragColor.xyz = vNormalVal.xyz;
 	//gl_FragColor.xyz = vec3(fDepth);

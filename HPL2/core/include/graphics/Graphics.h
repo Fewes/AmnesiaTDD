@@ -124,7 +124,7 @@ namespace hpl {
 													cParserVarContainer *apVarContainer);
 		void DestroyGpuProgram(iGpuProgram* apProgram);
 
-		void ReloadAllGpuPrograms();
+		void LinkAllGpuPrograms();
             
 		void AddMaterialType(iMaterialType *apType, const tString& asName);
 		iMaterialType *GetMaterialType(const tString& asName);

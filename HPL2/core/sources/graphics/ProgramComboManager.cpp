@@ -135,6 +135,15 @@ namespace hpl {
 				set.second->mpProgram->Link();
 			}
 		}
+
+		for (auto pProgram : mvOtherPrograms)
+		{
+			if (pProgram)
+			{
+				//Log("Linking other program\n");
+				pProgram->Link();
+			}
+		}
 	}
 
 	iGpuProgram* cProgramComboManager::GenerateProgram(int alMainMode, int alFlags)
@@ -415,6 +424,8 @@ namespace hpl {
 			pProgram->SetResources(mpResources);
 		}
 
+		mvOtherPrograms.push_back(pProgram);
+
 		return pProgram;
 	}
 
@@ -438,6 +449,8 @@ namespace hpl {
 				hplDelete(pProgram);
 			return NULL;
 		}
+
+		mvOtherPrograms.push_back(pProgram);
 
 		return pProgram;
 	}

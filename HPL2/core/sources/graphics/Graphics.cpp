@@ -475,7 +475,7 @@ namespace hpl {
 
 		mvAllPrograms.push_back(pProgram);
 
-        return pProgram;		
+		return pProgram;		
 	}
 	
 	void cGraphics::DestroyGpuProgram(iGpuProgram* apProgram)
@@ -483,11 +483,10 @@ namespace hpl {
 		STLFindAndDelete(mlstGpuPrograms, apProgram);
 	}
 
-	void cGraphics::ReloadAllGpuPrograms()
+	void cGraphics::LinkAllGpuPrograms()
 	{
 		for (auto it : mvAllPrograms)
 		{
-			it->Bind();
 			it->Link();
 		}
 	}

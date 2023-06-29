@@ -85,6 +85,8 @@ void main()
 	//Diffuse 
 	@ifdef UseDiffuseMap
 		vFinalColor = texture2D(aDiffuseMap, gl_TexCoord[0].xy) * gvColor;
+		// Linearize
+		vFinalColor.xyz = pow(vFinalColor.xyz, vec3(2.2));
 	@else
 		vFinalColor = vec4(0.0, 0.0 ,0.0, 1.0);
 	@endif

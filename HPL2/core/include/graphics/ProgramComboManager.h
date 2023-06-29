@@ -189,6 +189,7 @@ namespace hpl {
 		std::vector<tProgramComboProgramMap> mvProgramSets;
 		std::vector<tProgramComboShaderMap> mvVtxShaderSets;
 		std::vector<tProgramComboShaderMap> mvFragShaderSets;
+		std::vector<iGpuProgram*> mvOtherPrograms;
 
 		tGpuShaderList mlstExtraShaders;
 		tGpuProgramList mlstExtraPrograms;

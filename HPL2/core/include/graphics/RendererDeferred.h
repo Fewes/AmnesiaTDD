@@ -130,6 +130,8 @@ namespace hpl {
 		bool LoadData();
 		void DestroyData();
 
+		void LinkPrograms();
+
 		iTexture* GetPostEffectTexture();
 
 		iTexture* GetGbufferTexture(int alIdx);
@@ -276,7 +278,7 @@ namespace hpl {
 		iFrameBuffer *mpReflectionBuffer;
 		
 		iTexture *mpGBufferTexture[2][4];	//[2] = reflection or not
-		iTexture *mpAccumBufferTexture;
+		iTexture* mpAccumBufferTexture;
 		iTexture *mpRefractionTexture;
 		iTexture *mpReflectionTexture;
 		iDepthStencilBuffer* mpDepthStencil[2];	//[2] = reflection or not
@@ -304,6 +306,7 @@ namespace hpl {
 		iFrameBuffer *mpSSAOBlurBuffer;
 		iFrameBuffer *mpEdgeSmooth_LinearDepthBuffer;
 
+		iGpuProgram* mpTonemapProgram;
 		iGpuProgram *mpUnpackDepthProgram;
 		iGpuProgram *mpSSAOBlurProgram[2];
 		iGpuProgram *mpSSAORenderProgram;
