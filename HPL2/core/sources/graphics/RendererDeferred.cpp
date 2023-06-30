@@ -503,11 +503,12 @@ namespace hpl {
 													//1, defaultVars);
 
 				
-				mpProgramManager->AddGenerateProgramVariableId("avLightPos",	kVar_avLightPos, eDefferredProgramMode_Lights);
-				mpProgramManager->AddGenerateProgramVariableId("avLightColor",	kVar_avLightColor, eDefferredProgramMode_Lights);
-				mpProgramManager->AddGenerateProgramVariableId("afInvLightRadius",	kVar_afInvLightRadius, eDefferredProgramMode_Lights);
-				mpProgramManager->AddGenerateProgramVariableId("afNegFarPlane",	kVar_afNegFarPlane, eDefferredProgramMode_Lights);
-				mpProgramManager->AddGenerateProgramVariableId("afOneMinusCosHalfSpotFOV",	kVar_afOneMinusCosHalfSpotFOV, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("avScreenSize", kVar_avScreenSize, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("avLightPos", kVar_avLightPos, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("avLightColor", kVar_avLightColor, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("afInvLightRadius", kVar_afInvLightRadius, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("afNegFarPlane", kVar_afNegFarPlane, eDefferredProgramMode_Lights);
+				mpProgramManager->AddGenerateProgramVariableId("afOneMinusCosHalfSpotFOV", kVar_afOneMinusCosHalfSpotFOV, eDefferredProgramMode_Lights);
 				mpProgramManager->AddGenerateProgramVariableId("avLightForward", kVar_avLightForward, eDefferredProgramMode_Lights);
 				mpProgramManager->AddGenerateProgramVariableId("a_mtxSpotViewProj", kVar_a_mtxSpotViewProj, eDefferredProgramMode_Lights);
 				mpProgramManager->AddGenerateProgramVariableId("a_mtxInvViewRotation", kVar_a_mtxInvViewRotation, eDefferredProgramMode_Lights);
@@ -827,7 +828,7 @@ namespace hpl {
 
 		SetFlatProjection();
 
-		//SetProgram(NULL); // TODO: Tonemapping
+		//SetProgram(NULL);
 		SetProgram(mpTonemapProgram);
 		SetTexture(0,mpAccumBufferTexture);
 		SetTextureRange(NULL, 1);
@@ -1363,6 +1364,8 @@ namespace hpl {
 
 		///////////////////////
 		// General variables
+		cVector2f vScreenSize = cVector2f((float)mpAccumBufferTexture->GetWidth(), (float)mpAccumBufferTexture->GetHeight());
+		apProgram->SetVec2f(kVar_avScreenSize, vScreenSize);
 		apProgram->SetVec3f(kVar_avLightPos, apLightData->m_mtxViewSpaceRender.GetTranslation());
 		apProgram->SetColor4f(kVar_avLightColor, pLight->GetDiffuseColor());
 		apProgram->SetFloat(kVar_afInvLightRadius, 1.0f / pLight->GetRadius());

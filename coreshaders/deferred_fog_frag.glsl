@@ -105,11 +105,14 @@ void main()
 		@endif	
 	@endif
 	
-	fDepth = min(fDepth - avFogStartAndLength.x * 0.0, avFogStartAndLength.y);
-	float fAmount = max(fDepth / (avFogStartAndLength.x + avFogStartAndLength.y), 0.0);
+	float fAmount = max(0.0, (fDepth - avFogStartAndLength.x) / avFogStartAndLength.y);
 	
 	vec3 vFogColor = SRGBToLinear(avFogColor.xyz);
 
 	gl_FragColor.xyz = vFogColor;
 	gl_FragColor.w = pow(fAmount, afFalloffExp) * avFogColor.w;
+	// gl_FragColor.w = exp(-fDepth * avFogColor.w);
+#ifdef USE_PHYSICAL_FOG
+	gl_FragColor.w = mix(gl_FragColor.w, 1.0 - exp(-fDepth / avFogStartAndLength.y * avFogColor.w), 0.99);
+#endif
 }

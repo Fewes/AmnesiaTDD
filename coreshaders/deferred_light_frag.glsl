@@ -33,6 +33,7 @@ float ShadowOffsetLookup(sampler2DShadow aShadowMap, vec4 avLocation, vec2 avOff
 
 ////////////////////
 //Varying varaibles
+varying vec3 gvVertexPos;
 varying vec3 gvFarPlanePos;	//The pixel postion projected to the far plane
 
 @ifdef UseBatching
@@ -43,6 +44,8 @@ varying vec3 gvFarPlanePos;	//The pixel postion projected to the far plane
 
 ////////////////////
 //Uniform varaibles
+uniform vec2 avScreenSize;
+
 @ifdef UseBatching
 	//Do nothing
 @else
@@ -132,6 +135,30 @@ uniform sampler1D  aAttenuationMap;
 
 //--------------------------------------------------------------
 
+vec3 GetPosition(vec2 vMapCoords)
+{
+	vec4 vDepthVal = texture2DRect(aDepthMap, vMapCoords);
+
+	//32 bit has packed depth
+	@ifdef Deferred_32bit
+		float fDepth = UnpackVec3ToFloat(vDepthVal.xyz);
+			
+		@ifdef DivideInFrag
+			vec3 vPos;
+			vPos.xy = (gvFarPlanePos.xy / gvFarPlanePos.z);
+			vPos.z =  afNegFarPlane;
+			vPos.xyz *= fDepth; 
+		@else
+			vec3 vPos = gvFarPlanePos * fDepth; 
+		@endif
+	//64 bit stores postion directly
+	@elseif Deferred_64bit
+		vec3 vPos = vDepthVal.xyz;	
+	@endif
+
+	return vPos;
+}
+
 ///////////////////////////////
 // Main program
 void main()
@@ -153,26 +180,13 @@ void main()
 		float afInvLightRadius = gfLightRadius;
 		vec4 avLightColor = gvLightColor;
 	@endif
+
+	vec4 vLightColor = avLightColor;
+	// vLightColor.xyz = SRGBToLinear(vLightColor.xyz);
 	
 	/////////////////////////////////
 	// Get postion
-	
-	//32 bit has packed depth
-	@ifdef Deferred_32bit
-		float fDepth = UnpackVec3ToFloat(vDepthVal.xyz);
-			
-		@ifdef DivideInFrag
-			vec3 vPos;
-			vPos.xy = (gvFarPlanePos.xy / gvFarPlanePos.z);
-			vPos.z =  afNegFarPlane;
-			vPos.xyz *= fDepth; 
-		@else
-			vec3 vPos = gvFarPlanePos * fDepth; 
-		@endif
-	//64 bit stores postion directly
-	@elseif Deferred_64bit
-		vec3 vPos = vDepthVal.xyz;	
-	@endif
+	vec3 vPos = GetPosition(vMapCoords);
 	
 	
 	/////////////////////////////////
@@ -205,6 +219,44 @@ void main()
 	fAttenuation = mix(fAttenuation, fFalloff2, 0.999);
 	// fAttenuation += fFalloff2;
 #endif
+
+#ifdef USE_CONTACT_SHADOWS
+	float jitter = GetBayer(gl_FragCoord.xy);
+
+	int sampleCount = 16;
+	float contactShadow = 0.0;
+	float radius = 0.25 * abs(vPos.z);
+	for (int i = 0; i < sampleCount; i++)
+	{
+		float delta = (i + jitter) / sampleCount;
+		vec3 localPosition = vPos + vLightDir * delta * radius;
+		// vec2 localCoords = localPosition.xy;
+		// vec3 bufferPos = GetPosition(localCoords);
+		// vec4 clipPos = gl_ProjectionMatrix * vec4(bufferPos, 1.0);
+
+		vec4 clipPos = gl_ProjectionMatrix * vec4(localPosition, 1.0);
+		vec2 uv = clipPos.xy / clipPos.w * 0.5 + vec2(0.5);
+		vec2 localCoord = uv * avScreenSize;
+		vec3 localPos = GetPosition(localCoord);
+		float diff = localPos.z - vPos.z;
+		// if (localPos.z > vPos.z + 0.1 && )
+		if (diff > 0.1 && diff < 0.2)
+		{
+			// fAttenuation = 0.0;
+		}
+
+		float falloff = smoothstep(radius, radius * 0.66, diff) * (1.0 - delta);
+		vec2 vig = uv * (1.0 - uv.yx);
+		falloff *= saturate(vig.x * vig.y * 15.0);
+		// falloff = sqrt(falloff);
+		// falloff = 1.0;
+
+		contactShadow += mix(1.0, smoothstep(radius * 0.33, 0.0, diff), falloff);
+	}
+	fAttenuation *= pow(contactShadow / sampleCount, 16.0);
+#endif
+
+	// vColorVal.xyz = mix(vColorVal.xyz, vec3(1.0), 0.999);
 	
 	//////////////////////////////
 	//Spot attentuation / gobo
@@ -236,13 +288,11 @@ void main()
 	@ifdef UseSpecular
 		vNormal = normalize(vNormal);
 	@endif
-
-	// vColorVal.xyz = mix(vColorVal.xyz, vec3(1.0), 0.999);
 	
 	/////////////////////////////////
 	//Calculate diffuse color
 	float fLDotN = max( dot( vLightDir, vNormal.xyz), 0.0);
-	vec3 vDiffuse = vColorVal.xyz * avLightColor.xyz * fLDotN;
+	vec3 vDiffuse = vColorVal.xyz * vLightColor.xyz * fLDotN;
 	
 	/////////////////////////////////
 	//Calculate specular color
@@ -258,8 +308,8 @@ void main()
 		
 		vec3 vHalfVec = normalize(vLightDir + normalize(-vPos));
 		float fSpecPower2 = exp2(fSpecPower * 10.0) + 1.0;//Range 0 - 1024
-		vec3 vSpecular = vec3(avLightColor.w * fSpecIntensity *  pow( clamp( dot( vHalfVec, vNormal.xyz), 0.0, 1.0),fSpecPower2 ) );
-		vSpecular *= avLightColor.xyz;
+		vec3 vSpecular = vec3(vLightColor.w * fSpecIntensity *  pow( clamp( dot( vHalfVec, vNormal.xyz), 0.0, 1.0),fSpecPower2 ) );
+		vSpecular *= vLightColor.xyz;
 	@endif
 
 #ifdef USE_PBR
@@ -276,10 +326,10 @@ void main()
 	vec3 Fr, Fd;
 	GetPBR(vColorVal.xyz, roughness, metallic, vViewDir, vNormal, vLightDir, Fr, Fd);
 
-	vDiffuse = mix(vDiffuse, Fd * avLightColor.xyz, 0.999);
+	vDiffuse = mix(vDiffuse, Fd * vLightColor.xyz, 0.999);
 	@ifdef UseSpecular
-	// vSpecular = mix(vSpecular, Fr * NoL * PI * avLightColor.w * fSpecIntensity * avLightColor.xyz, 0.999);
-	vSpecular = mix(vSpecular, Fr * avLightColor.xyz, 0.999);
+	// vSpecular = mix(vSpecular, Fr * NoL * PI * vLightColor.w * fSpecIntensity * vLightColor.xyz, 0.999);
+	vSpecular = mix(vSpecular, Fr * vLightColor.xyz, 0.999);
 	@endif
 #endif
 	
@@ -423,5 +473,9 @@ void main()
 	//gl_FragColor.xyz = vec3(1);
 	//gl_FragColor.xyz = gl_FragColor.xyz = vNormalVal.xyz;
 	//gl_FragColor.xyz = vec3(fDepth);
+
+	// vec4 clipPos = gl_ProjectionMatrix * vec4(vPos, 1.0);
+	// gl_FragColor = mix(gl_FragColor, vec4(clipPos.xy / clipPos.w * 0.5 + vec2(0.5), 0, 1), 0.9999);
+	// gl_FragColor = mix(gl_FragColor, vec4(gl_FragCoord.xy / avScreenSize, 0, 1), 0.9999);
 }
 

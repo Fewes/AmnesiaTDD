@@ -16,7 +16,7 @@ float V_SmithGGXCorrelated(float linearRoughness, float NoV, float NoL)
     float a2 = linearRoughness * linearRoughness;
     float GGXV = NoL * sqrt((NoV - a2 * NoV) * NoV + a2);
     float GGXL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
-    return 0.5 / (GGXV + GGXL);
+    return saturate(0.5 / (GGXV + GGXL));
 }
 
 vec3 F_Schlick(const vec3 f0, float VoH)

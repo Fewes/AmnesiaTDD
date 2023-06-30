@@ -67,14 +67,6 @@ vec3 Uncharted2ToneMapping(vec3 color)
 	return color /= white;
 }
 
-vec3 Dither(vec2 vScreenPos)
-{
-    // lestyn's RGB dither (7 asm instructions) from Portal 2 X360, slightly modified for VR
-    vec3 vDither = vec3(dot(vec2(131.0, 312.0), vScreenPos.xy));
-    vDither.rgb = fract(vDither.rgb / vec3(103.0, 71.0, 97.0)) - vec3(0.5, 0.5, 0.5);
-    return vDither.rgb;
-}
-
 void main()
 {
 	vec3 vColor = texture2DRect(diffuseMap, gl_TexCoord[0].xy).xyz;

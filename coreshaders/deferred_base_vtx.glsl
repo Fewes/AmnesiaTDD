@@ -9,6 +9,8 @@
 
 uniform mat4 a_mtxModel;
 
+varying vec3 gvVertexPos;
+
 @ifdef UseNormals
 	varying vec3 gvNormal;
 @endif
@@ -27,10 +29,6 @@ uniform mat4 a_mtxModel;
 	
 	uniform float afInvFarPlane;
 //64 bit G-Buffer
-@endif
-	
-@ifdef Deferred_64bit || UseVertexPosition || UseEnvMap || UseFog || UseRefraction
-	varying vec3 gvVertexPos;	
 @endif
 
 @ifdef DeferredLight
@@ -130,9 +128,7 @@ void main()
 		gfLinearDepth = -(gl_ModelViewMatrix * gl_Vertex).z * afInvFarPlane; //Do not use near plane! Doing like this will make the calcs simpler in the light shader.
 	@endif
 	
-	@ifdef Deferred_64bit || UseVertexPosition || UseEnvMap || UseFog || UseRefraction
-		gvVertexPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-	@endif
+	gvVertexPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 	
 	//////////////////////
 	// Deferring (Lights)

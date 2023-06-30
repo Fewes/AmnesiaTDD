@@ -126,6 +126,7 @@ void main()
 {
 	//////////////////////////////////
 	//Diffuse
+	float fDepthOffset = 0.0;
 	@ifdef UseParallax
 		
 		//RELIEF PARALLAX:
@@ -150,6 +151,8 @@ void main()
 			
 			//Do a binary search between start and first intersection to pinpoint the postion.		
 			RayBinaryIntersection(aHeightMap,vHeightMapPos,  vEyeVec);
+
+			// fDepthOffset = length(vHeightMapPos.xy - gl_TexCoord[0].xy) * 0.025;
 			
 			vec2 vTexCoord = vHeightMapPos.xy;
 		@else				
@@ -159,6 +162,7 @@ void main()
 			float fDisplacement = fHeight * avHeightMapScaleAndBias.x;// + avHeightMapScaleAndBias.y; <- skip bias, since relief does not support it!
 			
 			vec2 vTexCoord = (vEyeVec * fDisplacement + gl_TexCoord[0].xyz).xy;
+			fDepthOffset = fDisplacement * 0.025;
 		@endif
 		
 		vec4 vDiffuseColor = texture2D(aDiffuseMap, vTexCoord);
@@ -222,7 +226,7 @@ void main()
 	//////////////////////////////////
 	//Depth
 	@ifdef Deferred_32bit
-		gl_FragData[2].xyz = PackFloatInVec3(gfLinearDepth); 
+		gl_FragData[2].xyz = PackFloatInVec3(gfLinearDepth + fDepthOffset);
 	@elseif Deferred_64bit
 		gl_FragData[2].xyz = gvVertexPos;
 		
@@ -232,18 +236,21 @@ void main()
 			//gl_FragData[2].xyz += vScreenNormal * fHeight * $VirtualPositionAddScale;
 		@endif
 	@endif
+
+	@ifdef UseSpecular
+		vec2 vSpecVals = texture2D(aSpecularMap, vTexCoord).xy;
+	@endif
 	
 	//////////////////////////////////
 	//Specular
 	@ifdef RenderTargets_4
 		@ifdef UseSpecular
-			gl_FragData[3].xy = texture2D(aSpecularMap, vTexCoord).xy;
+			gl_FragData[3].xy = vSpecVals.xy;
 		@else
 			gl_FragData[3].xy = vec2(0.0);
 		@endif
 	@else
 		@ifdef UseSpecular
-			vec2 vSpecVals = texture2D(aSpecularMap, vTexCoord).xy;
 			gl_FragData[1].w = vSpecVals.x;
 			gl_FragData[2].w = vSpecVals.y;
 		@else

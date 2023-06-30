@@ -73,29 +73,35 @@ namespace hpl {
 		//Iterate post effects and find the last one.
 		iPostEffect *pLastEffect = NULL;
 		tPostEffectMapIt it = m_mapPostEffects.begin();
-        for(; it!= m_mapPostEffects.end(); ++it)
+		for (; it != m_mapPostEffects.end(); ++it)
 		{
 			iPostEffect *pPostEffect = it->second;
-			if(pPostEffect->IsActive()==false) continue;
+			if (pPostEffect->IsActive() == false)
+			{
+				continue;
+			}
 			
 			pLastEffect = pPostEffect;
 		}
 
 		////////////////////////////////
 		//Iterate post effects and render them
-		int lCurrentTempBuffer =0;
+		int lCurrentTempBuffer = 0;
 		iTexture *pInputTex = apInputTexture;
 		it = m_mapPostEffects.begin();
-		for(; it!= m_mapPostEffects.end(); ++it)
+		for (; it != m_mapPostEffects.end(); ++it)
 		{
 			iPostEffect *pPostEffect =it->second;
-			if(pPostEffect->IsActive()==false) continue;
+			if (pPostEffect->IsActive() == false)
+			{
+				continue;
+			}
 		
 			bool bLastEffect = pPostEffect == pLastEffect;
 
-			pInputTex = pPostEffect->Render(this,pInputTex,mpFinalTempBuffer[lCurrentTempBuffer] ,bLastEffect);
+			pInputTex = pPostEffect->Render(this, pInputTex, mpFinalTempBuffer[lCurrentTempBuffer], bLastEffect);
 
-			lCurrentTempBuffer = lCurrentTempBuffer==0 ? 1 : 0;
+			lCurrentTempBuffer = lCurrentTempBuffer == 0 ? 1 : 0;
 		}
 
 		///////////////////////////////
