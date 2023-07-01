@@ -314,6 +314,11 @@ namespace hpl {
 #endif
 		void SetupGL();
 
+		void IMGUI_Init();
+		void IMGUI_NewFrame();
+		void IMGUI_EndFrame();
+		void IMGUI_Shutdown();
+
 	private:
         cVector2l mvScreenSize;
         int mlDisplay;

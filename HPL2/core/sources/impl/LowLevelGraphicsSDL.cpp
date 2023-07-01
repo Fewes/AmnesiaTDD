@@ -70,6 +70,9 @@
 	#endif
 #endif
 
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
+
 namespace hpl {
 
 	#ifdef HPL_OGL_THREADSAFE
@@ -378,18 +381,49 @@ namespace hpl {
 			Warning("OGL debug output not supported!\n");
 		}*/
 
-
 		return true;
 	}
 
 	//-----------------------------------------------------------------------
-
+	
 	void cLowLevelGraphicsSDL::CheckMultisampleCaps()
 	{
 
 	}
 
 	//-----------------------------------------------------------------------
+
+	void cLowLevelGraphicsSDL::IMGUI_Init()
+	{
+		ImGui::CreateContext();
+		ImGui_ImplSDL2_InitForOpenGL(mpScreen, &mGLContext);
+		ImGui_ImplOpenGL3_Init();
+
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	}
+
+	void cLowLevelGraphicsSDL::IMGUI_NewFrame()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		bool show_demo_window = true;
+		//ImGui::ShowDemoWindow(&show_demo_window);
+	}
+
+	void cLowLevelGraphicsSDL::IMGUI_EndFrame()
+	{
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void cLowLevelGraphicsSDL::IMGUI_Shutdown()
+	{
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext();
+	}
 
 	void cLowLevelGraphicsSDL::SetupGL()
 	{
@@ -485,7 +519,6 @@ namespace hpl {
 		glDisableClientState(GL_EDGE_FLAG_ARRAY);
 
 		///// END BATCH ARRAY STUFF ///////////////
-
 
 		//Show some info
 		Log("  Vendor: %s\n", glGetString(GL_VENDOR));

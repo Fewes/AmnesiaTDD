@@ -5,6 +5,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lux", "amnesia\src\game\Lux.vcxproj", "{451CAACC-25B3-465C-A42E-658B8883406E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HPL2", "HPL2\core\HPL2.vcxproj", "{4AB08447-393F-40D0-A48D-AA6CA41D50CC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439} = {B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AngelScript", "HPL2\dependencies\sources\AngelScript\AngelScript.vcxproj", "{F52F5209-0E1B-445E-A9B5-EDEEB444215D}"
 EndProject
@@ -41,6 +44,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MapView", "HPL2\tools\mapview\MapView.vcxproj", "{E464A8DA-E7E0-45BC-B46A-42991283992E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelView", "HPL2\tools\modelview\ModelView.vcxproj", "{CF2C5DD0-D7F9-47E2-9B83-E93387B6F4E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "HPL2\dependencies\sources\imgui\imgui\imgui.vcxproj", "{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A748AEF9-9068-401D-AB2B-196FDF92F5CC} = {A748AEF9-9068-401D-AB2B-196FDF92F5CC}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -210,6 +218,14 @@ Global
 		{CF2C5DD0-D7F9-47E2-9B83-E93387B6F4E8}.Release|x64.Build.0 = Release|x64
 		{CF2C5DD0-D7F9-47E2-9B83-E93387B6F4E8}.Release|x86.ActiveCfg = Release|Win32
 		{CF2C5DD0-D7F9-47E2-9B83-E93387B6F4E8}.Release|x86.Build.0 = Release|Win32
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Debug|x64.ActiveCfg = Debug|x64
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Debug|x64.Build.0 = Debug|x64
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Debug|x86.ActiveCfg = Debug|Win32
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Debug|x86.Build.0 = Debug|Win32
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Release|x64.ActiveCfg = Release|x64
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Release|x64.Build.0 = Release|x64
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Release|x86.ActiveCfg = Release|Win32
+		{B8E9D7D9-F1B6-4D6D-BBDB-FDA57E562439}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

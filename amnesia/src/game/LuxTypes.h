@@ -396,6 +396,8 @@ enum eLuxAction
 	eLuxAction_QuickLoad,
 	eLuxAction_FastForward,
 
+	eLuxAction_ToggleDebugUI,
+
 	eLuxAction_Inventory,
 	eLuxAction_Journal,
 	eLuxAction_QuestLog,

@@ -38,6 +38,8 @@
 #include "LuxLoadScreenHandler.h"
 
 #include "LuxDebugHandler.h"
+#include "system/DebugUI.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // ACTION LISTS
@@ -79,6 +81,8 @@ static cLuxAction gvLuxActions[] =
 	cLuxAction("QuickSave",eLuxAction_QuickSave,	false, eLuxActionCategory_System),
 	cLuxAction("QuickLoad",eLuxAction_QuickLoad,	false, eLuxActionCategory_System),
 	cLuxAction("FastForward",eLuxAction_FastForward,	false, eLuxActionCategory_System),
+
+	cLuxAction("ToggleDebugUI",eLuxAction_ToggleDebugUI,	false, eLuxActionCategory_System),
 
 	cLuxAction("Inventory",eLuxAction_Inventory,	true, eLuxActionCategory_Misc),
 	cLuxAction("Journal",eLuxAction_Journal,		true, eLuxActionCategory_Misc),
@@ -188,6 +192,8 @@ static cLuxInput gvLuxInputs[] =
 	cLuxInput("Keyboard", eKey_F4, eLuxAction_QuickSave),
 	cLuxInput("Keyboard", eKey_F5, eLuxAction_QuickLoad),
 	cLuxInput("Keyboard", eKey_F3, eLuxAction_FastForward),
+
+	cLuxInput("Keyboard", eKey_F11, eLuxAction_ToggleDebugUI),
 	
 	cLuxInput("Keyboard", eKey_Tab, eLuxAction_Inventory),
 	cLuxInput("Keyboard", eKey_J, eLuxAction_Journal),
@@ -753,8 +759,12 @@ void cLuxInputHandler::UpdateGlobalInput()
 		cRendererDeferred::SetDebugRenderFrameBuffers(!cRendererDeferred::GetDebugRenderFrameBuffers());
 	}
 	if (mpInput->BecameTriggerd(eLuxAction_QuickLoad))
-	{	
+	{
 		gpBase->mpEngine->ReloadShaders(true);
+	}
+	if (mpInput->BecameTriggerd(eLuxAction_ToggleDebugUI))
+	{
+		DebugUI::Toggle();
 	}
 
 	/////////////////

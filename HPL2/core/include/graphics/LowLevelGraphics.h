@@ -299,6 +299,11 @@ namespace hpl {
 
 		static void SetForceShaderModel3And4Off(bool abX){ mbForceShaderModel3And4Off = abX;}
 		static bool GetForceShaderModel3And4Off(){	return mbForceShaderModel3And4Off;}
+
+		virtual void IMGUI_Init()=0;
+		virtual void IMGUI_NewFrame()=0;
+		virtual void IMGUI_EndFrame()=0;
+		virtual void IMGUI_Shutdown()=0;
 	
 	protected:
 		static bool mbForceShaderModel3And4Off;

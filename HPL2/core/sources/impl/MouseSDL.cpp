@@ -32,6 +32,8 @@
 #include "system/LowLevelSystem.h"
 #include "system/Platform.h"
 
+#include "imgui.h"
+
 namespace hpl {
 
 	//////////////////////////////////////////////////////////////////////////
@@ -85,6 +87,8 @@ namespace hpl {
 		mbWheelUpMoved = false;
 		mbWheelDownMoved = false;
 
+		ImGuiIO& io = ImGui::GetIO();
+
 		std::list<SDL_Event>::iterator it = mpLowLevelInputSDL->mlstEvents.begin();
 		for(; it != mpLowLevelInputSDL->mlstEvents.end(); ++it)
 		{
@@ -124,12 +128,23 @@ namespace hpl {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
             else if(pEvent->type == SDL_MOUSEWHEEL)
             {
-                if (pEvent->wheel.y > 0) {
-                    mvMButtonArray[eMouseButton_WheelUp] = true;
-                    mbWheelUpMoved = true;
-                } else {
-                    mvMButtonArray[eMouseButton_WheelDown] = true;
-                    mbWheelDownMoved = true;
+                if (pEvent->wheel.y > 0)
+				{
+					io.AddMouseWheelEvent(0, 1);
+					if (!io.WantCaptureMouse)
+					{
+						mvMButtonArray[eMouseButton_WheelUp] = true;
+						mbWheelUpMoved = true;
+					}
+                }
+				else
+				{
+					io.AddMouseWheelEvent(0, -1);
+					if (!io.WantCaptureMouse)
+					{
+						mvMButtonArray[eMouseButton_WheelDown] = true;
+						mbWheelDownMoved = true;
+					}
                 }
                 break;
             }
@@ -140,23 +155,33 @@ namespace hpl {
 
 				//if(pEvent->button.button == SDL_BUTTON_WHEELUP)Log(" Wheel %d!\n",bButtonIsDown);
 
-				switch(pEvent->button.button)
+				switch (pEvent->button.button)
 				{
-					case SDL_BUTTON_LEFT: mvMButtonArray[eMouseButton_Left] = bButtonIsDown;break;
-					case SDL_BUTTON_MIDDLE: mvMButtonArray[eMouseButton_Middle] = bButtonIsDown;break;
-					case SDL_BUTTON_RIGHT: mvMButtonArray[eMouseButton_Right] = bButtonIsDown;break;
-					case SDL_BUTTON_X1: mvMButtonArray[eMouseButton_Button6] = bButtonIsDown;break;
-					case SDL_BUTTON_X2: mvMButtonArray[eMouseButton_Button7] = bButtonIsDown;break;
+					case SDL_BUTTON_LEFT: io.AddMouseButtonEvent(0, bButtonIsDown); break;
+					case SDL_BUTTON_MIDDLE: io.AddMouseButtonEvent(2, bButtonIsDown); break;
+					case SDL_BUTTON_RIGHT: io.AddMouseButtonEvent(1, bButtonIsDown); break;
+				}
+				
+				if (!io.WantCaptureMouse)
+				{
+					switch (pEvent->button.button)
+					{
+						case SDL_BUTTON_LEFT: mvMButtonArray[eMouseButton_Left] = bButtonIsDown; break;
+						case SDL_BUTTON_MIDDLE: mvMButtonArray[eMouseButton_Middle] = bButtonIsDown; break;
+						case SDL_BUTTON_RIGHT: mvMButtonArray[eMouseButton_Right] = bButtonIsDown; break;
+						case SDL_BUTTON_X1: mvMButtonArray[eMouseButton_Button6] = bButtonIsDown; break;
+						case SDL_BUTTON_X2: mvMButtonArray[eMouseButton_Button7] = bButtonIsDown; break;
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
-					case SDL_BUTTON_WHEELUP: 
-						mvMButtonArray[eMouseButton_WheelUp] = bButtonIsDown;
-						if(bButtonIsDown) mbWheelUpMoved = true;
-						break;
-					case SDL_BUTTON_WHEELDOWN: 
-						mvMButtonArray[eMouseButton_WheelDown] = bButtonIsDown;
-						if(bButtonIsDown) mbWheelDownMoved = true;
-						break;
+						case SDL_BUTTON_WHEELUP:
+							mvMButtonArray[eMouseButton_WheelUp] = bButtonIsDown;
+							if (bButtonIsDown) mbWheelUpMoved = true;
+							break;
+						case SDL_BUTTON_WHEELDOWN:
+							mvMButtonArray[eMouseButton_WheelDown] = bButtonIsDown;
+							if (bButtonIsDown) mbWheelDownMoved = true;
+							break;
 #endif
+					}
 				}
 			}
 		}

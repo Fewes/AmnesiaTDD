@@ -37,6 +37,7 @@
 #include "system/Platform.h"
 #include "system/Timer.h"
 #include "system/Mutex.h"
+#include "system/DebugUI.h"
 
 #include "input/Input.h"
 #include "input/Mouse.h"
@@ -52,6 +53,8 @@
 #include "engine/LowLevelEngineSetup.h"
 
 #include "impl/SDLEngineSetup.h"
+
+#include "imgui_impl_sdl2.h"
 
 namespace hpl {
 
@@ -309,6 +312,8 @@ namespace hpl {
 		//Init Generate
 		mpGenerate->Init(mpResources,mpGraphics);
 
+		// imgui
+		mpGraphics->GetLowLevel()->IMGUI_Init();
 
 		//Init haptic
 		if(mpHaptic) mpHaptic->Init(mpResources);
@@ -367,6 +372,8 @@ namespace hpl {
 	cEngine::~cEngine()
 	{
 		Log("--------------------------------------------------------\n\n");
+
+		mpGraphics->GetLowLevel()->IMGUI_Shutdown();
 
 		hplDelete(mpLogicTimer);
 		hplDelete(mpFPSCounter);
@@ -458,12 +465,13 @@ namespace hpl {
 					mpUpdater->RunMessage(eUpdateableMessage_PostUpdate, GetStepSize());
 					bIsUpdated = true;
 
-                    if (mpInput->isQuitMessagePosted()) {
+					if (mpInput->isQuitMessagePosted())
+					{
 
-                        mpUpdater->RunMessage(eUpdateableMessage_OnQuit);
+						mpUpdater->RunMessage(eUpdateableMessage_OnQuit);
 
-                        mpInput->resetQuitMessagePosted();
-                    }
+						mpInput->resetQuitMessagePosted();
+					}
 
 					/////////////////////////////////////////////
 					// Run Check if any application focus changed
@@ -510,6 +518,10 @@ namespace hpl {
 				//mpGraphics->GetLowLevel()->WaitAndFinishRendering();
 				STOP_TIMING(WaitAndFinishRendering)
 
+				DebugUI::DrawIfOpen(this);
+
+				mpGraphics->GetLowLevel()->IMGUI_EndFrame();
+
 				START_TIMING(SwapBuffers)
 				mpGraphics->GetLowLevel()->SwapBuffers();
 				STOP_TIMING(SwapBuffers)
@@ -526,6 +538,8 @@ namespace hpl {
 			// Render frame
 			if(mbLimitFPS==false || bIsUpdated)
 			{
+				mpGraphics->GetLowLevel()->IMGUI_NewFrame();
+
 				///////////////////////////////////////
            		//Get the the from the last frame.
 				UpdateFrameTimer();
