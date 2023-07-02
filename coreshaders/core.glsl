@@ -19,6 +19,12 @@ float pow5(float x)
     return x2 * x2 * x;
 }
 
+float GetVignette(vec2 uv)
+{
+	vec2 vig = uv * (1.0 - uv.yx);
+	return saturate(vig.x * vig.y * 15.0);
+}
+
 // https://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html?m=1
 vec3 SRGBToLinear(vec3 color)
 {

@@ -7,6 +7,8 @@
 uniform sampler2DRect diffuseMap;
 @define sampler_diffuseMap 0
 
+uniform vec2 avScreenSize;
+
 // Code from https://www.shadertoy.com/view/lslGzl
 
 vec3 ApplyGamma(vec3 vColor, float gamma)
@@ -42,13 +44,15 @@ vec3 RomBinDaHouseToneMapping(vec3 color)
 
 vec3 ACESToneMapping(vec3 x)
 {
+	// x *= 1.5;
     // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
     const float a = 2.51;
     const float b = 0.03;
     const float c = 2.43;
     const float d = 0.59;
     const float e = 0.14;
-    return x = (x * (a * x + b)) / (x * (c * x + d) + e);
+    x = (x * (a * x + b)) / (x * (c * x + d) + e);
+	return pow(x, vec3(0.8));
 }
 
 vec3 Uncharted2ToneMapping(vec3 color)
@@ -79,6 +83,9 @@ void main()
 	vColor = Uncharted2ToneMapping(vColor);
 	// vColor = ACESToneMapping(vColor);
 #endif
+
+	vec2 uv = gl_TexCoord[0].xy / avScreenSize;
+	vColor *= mix(1.0, GetVignette(uv), 0.25);
 
 #ifdef USE_LINEAR_RENDERING
 	vColor = LinearToSRGB(vColor);

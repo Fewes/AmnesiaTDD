@@ -247,8 +247,7 @@ void main()
 		}
 
 		float falloff = smoothstep(radius, radius * 0.66, diff) * (1.0 - delta);
-		vec2 vig = uv * (1.0 - uv.yx);
-		falloff *= saturate(vig.x * vig.y * 15.0);
+		falloff *= GetVignette(uv);
 		// falloff = sqrt(falloff);
 		// falloff = 1.0;
 

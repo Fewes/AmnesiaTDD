@@ -61,7 +61,8 @@ void main()
 		
 		//Skip any pixels where depth is lower (in front of) the core depth
 		//Do not want foreground leaking into background (opposite is acceptable though)
-		if(fDepth < fMinDepth) fMul*=0.25;
+		// if (fDepth < fMinDepth) fMul *= 0.25; // Original
+		if (abs(fDepth - fCoreDepth) > fCoreDepth * 0.025) fMul *= 0.0; // Sharper
 		//if(fDepth > fMaxDepth) fMul=0; <- can skip since it does not give that much impact.
 		
 		vOcc *= fMul;

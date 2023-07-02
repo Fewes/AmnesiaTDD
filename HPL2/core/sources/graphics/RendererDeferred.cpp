@@ -165,6 +165,7 @@ namespace hpl {
 	#define kVar_afFalloffExp						20
 	#define kVar_afDepthDiffMul						21
 	#define kVar_afSkipEdgeLimit					22
+	#define kVar_a_mtxProjectionMatrix				23
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -566,6 +567,7 @@ namespace hpl {
 			//Tonemap program
 			mpTonemapProgram = mpGraphics->CreateGpuProgramFromShaders("Tonemap", "deferred_tonemap_vtx.glsl",
 				"deferred_tonemap_frag.glsl", &programVars);
+			mpTonemapProgram->GetVariableAsId("avScreenSize", kVar_avScreenSize);
 
 			//Program for unpacking depth to a lower resolution texture
 			if(mGBufferType == eDeferredGBuffer_32Bit)	programVars.Add("Deferred_32bit");
@@ -606,6 +608,7 @@ namespace hpl {
 				mpSSAORenderProgram->GetVariableAsId("avScreenSize", kVar_avScreenSize);
 				mpSSAORenderProgram->GetVariableAsId("afDepthDiffMul", kVar_afDepthDiffMul);
 				mpSSAORenderProgram->GetVariableAsId("afSkipEdgeLimit", kVar_afSkipEdgeLimit);
+				mpSSAORenderProgram->GetVariableAsId("a_mtxProjectionMatrix", kVar_a_mtxProjectionMatrix);
 			}
 		}
 
@@ -1173,6 +1176,7 @@ namespace hpl {
 			mpSSAORenderProgram->SetVec2f(kVar_avScreenSize,vSSAOSize);
 			mpSSAORenderProgram->SetFloat(kVar_afDepthDiffMul, mfSSAODepthDiffMul);
 			mpSSAORenderProgram->SetFloat(kVar_afSkipEdgeLimit, mfSSAOSkipEdgeLimit);
+			mpSSAORenderProgram->SetMatrixf(kVar_a_mtxProjectionMatrix, mpCurrentFrustum->GetProjectionMatrix());
 		}
 
 		SetProgram(mpSSAORenderProgram);

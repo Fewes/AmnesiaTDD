@@ -67,7 +67,7 @@ uniform float afLightLevel;
 
 @ifdef UseFog
 	uniform vec2 avFogStartAndLength;
-	uniform float afOneMinusFogAlpha;
+	uniform vec4 avFogColor;
 	uniform float afFalloffExp;
 @endif	
 
@@ -93,15 +93,24 @@ void main()
 		vFinalColor = vec4(0.0, 0.0 ,0.0, 1.0);
 	@endif
 	
+	vec3 vFogColor = vec3(0.0);
+	float fFogAlpha = 0.0;
 	////////////////////
 	//Fog
 	@ifdef UseFog
-		float fFogAmount = (-gvVertexPos.z - avFogStartAndLength.x)/ avFogStartAndLength.y;
-		fFogAmount = clamp(fFogAmount, 0.0, 1.0);
-		fFogAmount = pow(fFogAmount, afFalloffExp);
-		
-		float fFinalAlpha = afOneMinusFogAlpha * fFogAmount + (1-fFogAmount);
-		fFinalAlpha *= afAlpha;
+		#ifdef USE_PHYSICAL_FOG
+			vFogColor = SRGBToLinear(avFogColor.xyz);
+			float fDepth = abs(-gvVertexPos.z);
+			fFogAlpha = 1.0 - exp(-fDepth / avFogStartAndLength.y * avFogColor.w);
+			float fFinalAlpha = afAlpha;
+		#else
+			float fFogAmount = (-gvVertexPos.z - avFogStartAndLength.x)/ avFogStartAndLength.y;
+			fFogAmount = clamp(fFogAmount, 0.0, 1.0);
+			fFogAmount = pow(fFogAmount, afFalloffExp);
+			
+			float fFinalAlpha = (1.0 - avFogColor.w) * fFogAmount + (1-fFogAmount);
+			fFinalAlpha *= afAlpha;
+		#endif
 	@else
 		float fFinalAlpha = afAlpha;
 	@endif
@@ -110,22 +119,24 @@ void main()
 	////////////////////
 	//Calculate new color based on Alpha and Blend mode
 	@ifdef BlendMode_Add
-		vFinalColor.xyz *= fFinalAlpha*afLightLevel;
+		vFinalColor.xyz *= fFinalAlpha*afLightLevel * (1.0 - fFogAlpha);
 	
 	@elseif BlendMode_Mul
-		vFinalColor.xyz += (vec3(1.0) - vFinalColor.xyz) * (1.0-fFinalAlpha);
+		// vFinalColor.xyz += (vec3(1.0) - vFinalColor.xyz) * (1.0 - fFinalAlpha); // TODO: Fog
 	
 	@elseif BlendMode_MulX2
 		float fBlendMulAlpha = afLightLevel*fFinalAlpha;
-		vFinalColor.xyz = vFinalColor.xyz*fBlendMulAlpha + vec3(0.5)*(1-fBlendMulAlpha);
+		// vFinalColor.xyz = vFinalColor.xyz*fBlendMulAlpha + vec3(0.5)*(1-fBlendMulAlpha); // TODO: Fog
 	
 	@elseif BlendMode_Alpha
 		vFinalColor.a *= fFinalAlpha;
 		vFinalColor.xyz *= afLightLevel;
+		vFinalColor.xyz = mix(vFinalColor.xyz, vFogColor, fFogAlpha);
 	
 	@elseif BlendMode_PremulAlpha
 		vFinalColor *= fFinalAlpha;
 		vFinalColor.xyz *= afLightLevel;
+		vFinalColor.xyz = vFinalColor.xyz * (1.0 - fFogAlpha) + vFogColor;
 	@endif
 	
 	

@@ -541,7 +541,7 @@ namespace hpl {
 				mpGraphics->GetLowLevel()->IMGUI_NewFrame();
 
 				///////////////////////////////////////
-           		//Get the the from the last frame.
+				//Get the the from the last frame.
 				UpdateFrameTimer();
 
 				//On draw callback sending that to gui, etc
