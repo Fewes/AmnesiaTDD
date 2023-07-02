@@ -48,7 +48,7 @@ namespace hpl {
 	//------------------------------
 	#define kVar_afAlpha							0
 	#define kVar_avFogStartAndLength				1
-	#define kVar_afOneMinusFogAlpha					2
+	#define kVar_avFogColor							2
 	#define kVar_afFalloffExp						3
 	#define kVar_a_mtxUV							4
 	#define kVar_afRefractionScale					5
@@ -165,8 +165,8 @@ namespace hpl {
 			////////////////////////////////
 			//Set up variable ids
 			mpBlendProgramManager[i]->AddGenerateProgramVariableId("afAlpha",kVar_afAlpha, eMaterialRenderMode_Diffuse);
-			mpBlendProgramManager[i]->AddGenerateProgramVariableId("avFogStartAndLength",kVar_avFogStartAndLength, eMaterialRenderMode_Diffuse);
-			mpBlendProgramManager[i]->AddGenerateProgramVariableId("afOneMinusFogAlpha",kVar_afOneMinusFogAlpha, eMaterialRenderMode_Diffuse);
+			mpBlendProgramManager[i]->AddGenerateProgramVariableId("avFogStartAndLength", kVar_avFogStartAndLength, eMaterialRenderMode_Diffuse);
+			mpBlendProgramManager[i]->AddGenerateProgramVariableId("avFogColor",kVar_avFogColor, eMaterialRenderMode_Diffuse);
 			mpBlendProgramManager[i]->AddGenerateProgramVariableId("afFalloffExp",kVar_afFalloffExp, eMaterialRenderMode_Diffuse);
 			mpBlendProgramManager[i]->AddGenerateProgramVariableId("a_mtxUV",kVar_a_mtxUV, eMaterialRenderMode_Diffuse);
 			mpBlendProgramManager[i]->AddGenerateProgramVariableId("afRefractionScale", kVar_afRefractionScale, eMaterialRenderMode_Diffuse);
@@ -329,7 +329,7 @@ namespace hpl {
 			cWorld *pWorld = apRenderer->GetCurrentWorld();
 
 			apProgram->SetVec2f(kVar_avFogStartAndLength, cVector2f(pWorld->GetFogStart(), pWorld->GetFogEnd() - pWorld->GetFogStart()));
-			apProgram->SetFloat(kVar_afOneMinusFogAlpha, 1 - pWorld->GetFogColor().a);
+			apProgram->SetColor4f(kVar_avFogColor, pWorld->GetFogColor());
 			apProgram->SetFloat(kVar_afFalloffExp, pWorld->GetFogFalloffExp());
 		}
 	}

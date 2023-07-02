@@ -3,6 +3,7 @@
 
 #include "LowLevelSystem.h"
 #include "../engine/Engine.h"
+#include "../graphics//RendererDeferred.h"
 
 namespace hpl
 {

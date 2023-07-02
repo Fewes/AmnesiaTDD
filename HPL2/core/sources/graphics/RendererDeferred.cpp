@@ -82,6 +82,7 @@ namespace hpl {
 	//debug
 	bool cRendererDeferred::mbOcclusionTestLargeLights = true;
 	bool cRendererDeferred::mbDebugRenderFrameBuffers = false;
+	eDebugDrawMode cRendererDeferred::debugDrawMode = eDebugDrawMode_None;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -828,8 +829,15 @@ namespace hpl {
 
 		SetFlatProjection();
 
-		//SetProgram(NULL);
-		SetProgram(mpTonemapProgram);
+		if (debugDrawMode == eDebugDrawMode_None ||
+			debugDrawMode == eDebugDrawMode_Diffuse) // TODO: Should just do sRGB on diffuse buffer, not tonemap!
+		{
+			SetProgram(mpTonemapProgram);
+		}
+		else
+		{
+			SetProgram(NULL);
+		}
 		SetTexture(0,mpAccumBufferTexture);
 		SetTextureRange(NULL, 1);
 
@@ -907,11 +915,6 @@ namespace hpl {
 		}
 		
 		RenderGbuffer();
-		if(mbDebugRenderFrameBuffers)
-		{
-			RenderGbufferContent();
-			return;
-		}
 		
 		RenderDecals();
 
@@ -957,6 +960,8 @@ namespace hpl {
 			RenderReflectionContent();
 			return;
 		}*/
+
+		DebugDraw();
 	}
 
 	//-----------------------------------------------------------------------
@@ -1156,7 +1161,7 @@ namespace hpl {
 		SetFrameBuffer(mpSSAOBuffer);
 		SetTexture(0,mpLinearDepthTexture);
 		SetTexture(1,mpSSAOScatterDisk);
-
+		SetTexture(2,GetGbufferTexture(1));
 
 		if(mpSSAORenderProgram)
 		{
@@ -3472,8 +3477,14 @@ namespace hpl {
 	//-----------------------------------------------------------------------
 
 
-	void cRendererDeferred::RenderGbufferContent()
+	void cRendererDeferred::DebugDraw()
 	{
+		if (debugDrawMode == eDebugDrawMode_None ||
+			debugDrawMode == eDebugDrawMode_SSAO && mpSSAOTexture == NULL)
+		{
+			return;
+		}
+
 		START_RENDER_PASS(GBufferContent);
 
 		//Pure testing below
@@ -3492,6 +3503,25 @@ namespace hpl {
 
 		SetTextureRange(NULL,1);
 
+		switch (debugDrawMode)
+		{
+		case eDebugDrawMode_Diffuse:
+			SetTexture(0, GetBufferTexture(0));
+			DrawQuad(cVector2f(0, 0), cVector2f(1, 1), 0, mvScreenSizeFloat, true);
+			break;
+
+		case eDebugDrawMode_Normal:
+			SetTexture(0, GetBufferTexture(1));
+			DrawQuad(cVector2f(0, 0), cVector2f(1, 1), 0, mvScreenSizeFloat, true);
+			break;
+
+		case eDebugDrawMode_SSAO:
+			SetTexture(0, mpSSAOTexture);
+			DrawQuad(cVector2f(0,-1), cVector2f(2, 2), 0, mvScreenSizeFloat, true);
+			break;
+		}
+
+		/*
 		SetTexture(0,GetBufferTexture(0));
 		DrawQuad(cVector2f(0,0),cVector2f(0.5f,0.5f), 0,mvScreenSizeFloat, true);
 		SetTexture(0,GetBufferTexture(1));
@@ -3503,7 +3533,7 @@ namespace hpl {
 			SetTexture(0,GetBufferTexture(3));
 			DrawQuad(cVector2f(0.5f,0.5f),cVector2f(0.5f,0.5f), 0,mvScreenSizeFloat, true);
 		}
-		
+		*/
 
 		SetNormalFrustumProjection();
 		END_RENDER_PASS();

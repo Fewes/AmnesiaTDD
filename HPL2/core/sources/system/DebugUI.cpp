@@ -5,8 +5,6 @@ namespace hpl
 {
 	bool DebugUI::open = false;
 
-	int test = 0;
-
 	void DebugUI::Toggle()
 	{
 		DebugUI::open = !DebugUI::open;
@@ -22,11 +20,19 @@ namespace hpl
 		ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
 		if (ImGui::Begin("Debug UI", &DebugUI::open, ImGuiWindowFlags_None))
 		{
-			ImGui::Combo("Debug Draw", &test,
+			int debugDrawMode = cRendererDeferred::debugDrawMode;
+			ImGui::Combo("Debug Draw", &debugDrawMode,
 				"None\0"
 				"Diffuse\0"
 				"Normals\0"
 				"SSAO\0");
+
+			cRendererDeferred::debugDrawMode = static_cast<eDebugDrawMode>(debugDrawMode);
+
+			if (ImGui::Button("Force reload shaders (F5)"))
+			{
+				engine->ReloadShaders(true);
+			}
 
 			/*
 			if (ImGui::BeginMenuBar())

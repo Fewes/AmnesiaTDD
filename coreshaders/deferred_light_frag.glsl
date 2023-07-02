@@ -225,20 +225,21 @@ void main()
 
 	int sampleCount = 16;
 	float contactShadow = 0.0;
-	float radius = 0.25 * abs(vPos.z);
+	float radius = clamp(0.1 * abs(vPos.z), 0.05, 1.0);
+	// float radius = 0.2;
 	for (int i = 0; i < sampleCount; i++)
 	{
 		float delta = (i + jitter) / sampleCount;
-		vec3 localPosition = vPos + vLightDir * delta * radius;
-		// vec2 localCoords = localPosition.xy;
+		vec3 localPos = vPos + vLightDir * delta * radius;
+		// vec2 localCoords = localPos.xy;
 		// vec3 bufferPos = GetPosition(localCoords);
 		// vec4 clipPos = gl_ProjectionMatrix * vec4(bufferPos, 1.0);
 
-		vec4 clipPos = gl_ProjectionMatrix * vec4(localPosition, 1.0);
+		vec4 clipPos = gl_ProjectionMatrix * vec4(localPos, 1.0);
 		vec2 uv = clipPos.xy / clipPos.w * 0.5 + vec2(0.5);
 		vec2 localCoord = uv * avScreenSize;
-		vec3 localPos = GetPosition(localCoord);
-		float diff = localPos.z - vPos.z;
+		vec3 localBufferPos = GetPosition(localCoord);
+		float diff = localBufferPos.z - localPos.z;
 		// if (localPos.z > vPos.z + 0.1 && )
 		if (diff > 0.1 && diff < 0.2)
 		{
@@ -253,7 +254,7 @@ void main()
 
 		contactShadow += mix(1.0, smoothstep(radius * 0.33, 0.0, diff), falloff);
 	}
-	fAttenuation *= pow(contactShadow / sampleCount, 16.0);
+	fAttenuation *= pow(contactShadow / sampleCount, 32.0);
 #endif
 
 	// vColorVal.xyz = mix(vColorVal.xyz, vec3(1.0), 0.999);

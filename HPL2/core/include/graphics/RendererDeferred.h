@@ -98,6 +98,14 @@ namespace hpl {
 		eGBufferComponents_LinearDepth,
 		eGBufferComponents_LastEnum,
 	};
+
+	enum eDebugDrawMode
+	{
+		eDebugDrawMode_None,
+		eDebugDrawMode_Diffuse,
+		eDebugDrawMode_Normal,
+		eDebugDrawMode_SSAO
+	};
 	
 	//---------------------------------------------
 	
@@ -183,6 +191,8 @@ namespace hpl {
 
 		static void SetDebugRenderFrameBuffers(bool abX){ mbDebugRenderFrameBuffers = abX;}
 		static bool GetDebugRenderFrameBuffers(){ return mbDebugRenderFrameBuffers;}
+
+		static eDebugDrawMode debugDrawMode;
 	
 	private:
 		void CopyToFrameBuffer();
@@ -225,7 +235,7 @@ namespace hpl {
 		iTexture* GetBufferTexture(int alIdx);
 		
 		
-		void RenderGbufferContent();
+		void DebugDraw();
 		void RenderReflectionContent();
 
 		////////////////
