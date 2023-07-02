@@ -1240,8 +1240,11 @@ void cLuxInputHandler::UpdateGamePlayerInput()
 		vFinalPos = 0;
 	}
 
-	mpPlayer->AddYaw(-vFinalPos.x);
-	mpPlayer->AddPitch(-vFinalPos.y);
+	if (!DebugUI::open)
+	{
+		mpPlayer->AddYaw(-vFinalPos.x);
+		mpPlayer->AddPitch(-vFinalPos.y);
+	}
 }
 
 //-----------------------------------------------------------------------

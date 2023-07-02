@@ -2,8 +2,7 @@
 #define HPL_DEBUGUI_H
 
 #include "LowLevelSystem.h"
-#include "../engine/Engine.h"
-#include "../graphics//RendererDeferred.h"
+#include "engine/Engine.h"
 
 namespace hpl
 {
@@ -13,7 +12,9 @@ namespace hpl
 		static bool open;
 
 		static void Toggle();
-		static void DrawIfOpen(cEngine*);
+		static void Update(cEngine*);
+	private:
+		static bool prevOpen;
 	};
 }
 #endif

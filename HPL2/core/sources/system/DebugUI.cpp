@@ -1,24 +1,40 @@
 #include "system/DebugUI.h"
 #include "imgui.h"
 
+#include "graphics//RendererDeferred.h"
+#include "graphics//Graphics.h"
+#include "graphics/LowLevelGraphics.h"
+
 namespace hpl
 {
 	bool DebugUI::open = false;
+	bool DebugUI::prevOpen = false;
 
 	void DebugUI::Toggle()
 	{
-		DebugUI::open = !DebugUI::open;
+		open = !open;
 	}
 
-	void DebugUI::DrawIfOpen(cEngine* engine)
+	void DebugUI::Update(cEngine* engine)
 	{
-		if (!DebugUI::open)
+		auto lowLevelGraphics = engine->GetGraphics()->GetLowLevel();
+
+		if (prevOpen != open)
+		{
+			lowLevelGraphics->ShowCursor(open);
+			lowLevelGraphics->SetRelativeMouse(!open);
+			lowLevelGraphics->SetWindowGrab(!open);
+		}
+
+		prevOpen = open;
+
+		if (!open)
 		{
 			return;
 		}
 
 		ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("Debug UI", &DebugUI::open, ImGuiWindowFlags_None))
+		if (ImGui::Begin("Debug UI", &open, ImGuiWindowFlags_None))
 		{
 			int debugDrawMode = cRendererDeferred::debugDrawMode;
 			ImGui::Combo("Debug Draw", &debugDrawMode,
@@ -33,6 +49,9 @@ namespace hpl
 			{
 				engine->ReloadShaders(true);
 			}
+
+			//ImGui::Text("Window mouse focus: %d", lowLevelGraphics->GetWindowMouseFocus());
+			//ImGui::Text("Window input focus: %d", lowLevelGraphics->GetWindowInputFocus());
 
 			/*
 			if (ImGui::BeginMenuBar())

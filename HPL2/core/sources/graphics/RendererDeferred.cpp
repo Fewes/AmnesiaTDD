@@ -593,6 +593,8 @@ namespace hpl {
 			}
 			
 			//SSAO Rendering
+			if (mGBufferType == eDeferredGBuffer_32Bit)	programVars.Add("Deferred_32bit");
+			else										programVars.Add("Deferred_64bit");
 			programVars.Add("SampleNumDiv2", mlSSAONumOfSamples / 2);
 			mpSSAORenderProgram = mpGraphics->CreateGpuProgramFromShaders(	"SSAORender","deferred_ssao_render_vtx.glsl", 
 																			"deferred_ssao_render_frag.glsl",&programVars);

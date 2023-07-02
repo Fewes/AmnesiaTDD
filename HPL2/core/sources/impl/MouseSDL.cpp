@@ -65,7 +65,7 @@ namespace hpl {
 	//////////////////////////////////////////////////////////////////////////
 	
 	//-----------------------------------------------------------------------
-
+	bool hadInputFocus;
 	void cMouseSDL::Update()
 	{
 		///////////////////////////////////////
@@ -193,9 +193,16 @@ namespace hpl {
 		
 		int lX,lY; 
 		SDL_GetRelativeMouseState(&lX, &lY);
-		mvMouseRelPos = cVector2l(lX,lY);
+		if (hadInputFocus) // Prevent movement when tabbing into game
+		{
+			mvMouseRelPos = cVector2l(lX, lY);
+		}
+		else
+		{
+			mvMouseRelPos = cVector2l(0, 0);
+		}
 
-		
+		hadInputFocus = pLowLevelGfx->GetWindowInputFocus();
 	}
 	
 	//-----------------------------------------------------------------------

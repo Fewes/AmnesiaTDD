@@ -518,7 +518,7 @@ namespace hpl {
 				//mpGraphics->GetLowLevel()->WaitAndFinishRendering();
 				STOP_TIMING(WaitAndFinishRendering)
 
-				DebugUI::DrawIfOpen(this);
+				DebugUI::Update(this);
 
 				mpGraphics->GetLowLevel()->IMGUI_EndFrame();
 
